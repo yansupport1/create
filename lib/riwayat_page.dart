@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'api_config.dart';
 
 class RiwayatPage extends StatefulWidget {
   final String sessionKey;
@@ -19,11 +20,11 @@ class RiwayatPage extends StatefulWidget {
 }
 
 class _RiwayatPageState extends State<RiwayatPage> {
-  // --- TEMA WARNA UNGU TUA ---
-  final Color bgDark = const Color(0xFF1A0B2E);
-  final Color primaryPurple = const Color(0xFF6A1B9A);
-  final Color accentPurple = const Color(0xFF9C27B0);
-  final Color lightPurple = const Color(0xFFCE93D8);
+  // --- TEMA WARNA CYAN ---
+  final Color bgDark = const Color(0xFF0B1A1A);
+  final Color primaryCyan = const Color(0xFF00ACC1);
+  final Color accentCyan = const Color(0xFF18FFFF);
+  final Color lightCyan = const Color(0xFF84FFFF);
   final Color primaryWhite = Colors.white;
   final Color accentGrey = Colors.grey.shade400;
   final Color cardGlass = Colors.white.withOpacity(0.05);
@@ -39,11 +40,10 @@ class _RiwayatPageState extends State<RiwayatPage> {
   }
 
   Future<void> _loadActivities() async {
-    const baseUrl = "http://100memberprivet.surnxuesk.biz.id:10897";
 
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/getMyActivity?key=${widget.sessionKey}'),
+        Uri.parse('http://100memberprivet.surnxuesk.biz.id:10897/getMyActivity?key=${widget.sessionKey}'),
       ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
@@ -94,7 +94,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
             fontWeight: FontWeight.bold,
             shadows: [
               Shadow(
-                color: accentPurple.withOpacity(0.8),
+                color: primaryCyan.withOpacity(0.8),
                 blurRadius: 10,
               ),
             ],
@@ -114,7 +114,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
             end: Alignment.bottomCenter,
             colors: [
               bgDark,
-              accentPurple.withOpacity(0.1),
+              primaryCyan.withOpacity(0.1),
               bgDark,
             ],
           ),
@@ -122,7 +122,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
         child: isLoading
             ? const Center(
           child: CircularProgressIndicator(
-            color: Color(0xFF9C27B0),
+            color: Color(0xFF00ACC1),
           ),
         )
             : activities.isEmpty
@@ -146,7 +146,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
         )
             : RefreshIndicator(
           onRefresh: _loadActivities,
-          color: lightPurple,
+          color: accentCyan,
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: activities.length,
@@ -177,7 +177,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
         typeLabel = "ATTACK";
         break;
       case 'create':
-        iconColor = lightPurple;
+        iconColor = accentCyan;
         iconData = Icons.person_add_alt_1_rounded;
         typeLabel = "ACCOUNT";
         break;
@@ -196,7 +196,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
         border: Border.all(color: borderGlass, width: 1),
         boxShadow: [
           BoxShadow(
-            color: accentPurple.withOpacity(0.1),
+            color: primaryCyan.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -236,13 +236,13 @@ class _RiwayatPageState extends State<RiwayatPage> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: accentPurple.withOpacity(0.3),
+                        color: primaryCyan.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         typeLabel,
                         style: TextStyle(
-                          color: lightPurple,
+                          color: accentCyan,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1,

@@ -42,7 +42,7 @@ class _Contact {
 const _contacts = [
   _Contact(
     label:    'Telegram',
-    handle:   '@Yanz',
+    handle:   '@Rexyz397',
     icon:     FontAwesomeIcons.telegram,
     color:    Color(0xFF39A7E0),
     colorDim: Color(0xFF1A4D6E),
@@ -50,7 +50,7 @@ const _contacts = [
   ),
   _Contact(
     label:    'WhatsApp',
-    handle:   '+6285183122119',
+    handle:   '+62 823-1911-8824',
     icon:     FontAwesomeIcons.whatsapp,
     color:    Color(0xFF25D366),
     colorDim: Color(0xFF0D4A27),
@@ -58,19 +58,19 @@ const _contacts = [
   ),
   _Contact(
     label:    'TikTok',
-    handle:   '@YANZKING122',
+    handle:   '@yanzkimg1222',
     icon:     FontAwesomeIcons.tiktok,
     color:    Color(0xFFEE1D52),
     colorDim: Color(0xFF4A0D1F),
-    url:      'MLS CARI',
+    url:      'https://www.tiktok.com/@yanzking1223',
   ),
   _Contact(
     label:    'Instagram',
-    handle:   '@Gada',
+    handle:   '@dshadowenv',
     icon:     FontAwesomeIcons.instagram,
     color:    Color(0xFFE1306C),
     colorDim: Color(0xFF4A1030),
-    url:      'https://t.me/yanzking122',
+    url:      'https://www.instagram.com/dshadowenv',
   ),
 ];
 

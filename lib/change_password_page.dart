@@ -2,31 +2,30 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'api_config.dart';
 
-const String baseUrl = "http://100memberprivet.surnxuesk.biz.id:10897";
-
-// ─── Palette (Ungu Tua) ─────────────────────────────────────────────────────────
+// ─── Palette (sama dengan BugSenderPage & AdminPage) ─────────────────────────
 class _C {
-  static const bg       = Color(0xFF1A0B2E);
-  static const surface  = Color(0xFF2D1B4E);
-  static const card     = Color(0xFF3D2A5E);
-  static const border   = Color(0xFF5A4A7A);
-  static const borderLit= Color(0xFF6B5A8A);
+  static const bg       = Color(0xFF060B14);
+  static const surface  = Color(0xFF0C1424);
+  static const card     = Color(0xFF101A2E);
+  static const border   = Color(0xFF1A2D4A);
+  static const borderLit= Color(0xFF1E3A5F);
 
-  static const purple   = Color(0xFF6A1B9A);
-  static const purpleMid= Color(0xFF9C27B0);
-  static const purpleLight= Color(0xFFCE93D8);
-  static const gold     = Color(0xFFFFD700);
+  static const blue     = Color(0xFF1B6FBD);
+  static const blueMid  = Color(0xFF2D8FE8);
+  static const blueLight= Color(0xFF56AEF5);
+  static const blueFrost= Color(0xFF90CEF7);
 
   static const green    = Color(0xFF22C55E);
   static const red      = Color(0xFFEF4444);
 
   static const text     = Color(0xFFE2EDF9);
-  static const textSub  = Color(0xFFB39DDB);
-  static const textDim  = Color(0xFF7A6A9A);
+  static const textSub  = Color(0xFF7A9BBF);
+  static const textDim  = Color(0xFF3A5470);
 
   static const LinearGradient btnGrad = LinearGradient(
-    colors: [purpleMid, purpleLight],
+    colors: [blueMid, blueLight],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -57,10 +56,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
   bool _obscureNew     = true;
   bool _obscureConfirm = true;
 
+  // Strength meter
   double _strength = 0;
   String _strengthLabel = '';
   Color  _strengthColor = _C.textDim;
 
+  // Animations
   late AnimationController _bgCtrl;
   late AnimationController _entranceCtrl;
   late AnimationController _iconCtrl;
@@ -72,6 +73,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
   late Animation<double>  _formFade;
   late Animation<double>  _shake;
 
+  // Field focus nodes
   final _oldFocus     = FocusNode();
   final _newFocus     = FocusNode();
   final _confirmFocus = FocusNode();
@@ -158,6 +160,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     });
   }
 
+  // ─── API ──────────────────────────────────────────────────────────────────
   Future<void> _changePassword() async {
     final oldPass     = oldPassCtrl.text.trim();
     final newPass     = newPassCtrl.text.trim();
@@ -177,7 +180,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     setState(() => isLoading = true);
     try {
       final res = await http.post(
-        Uri.parse("$baseUrl/changepass"),
+        Uri.parse("http://100memberprivet.surnxuesk.biz.id:10897/changepass"),
         body: {
           "username":   widget.username,
           "oldPass":    oldPass,
@@ -202,6 +205,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     setState(() => isLoading = false);
   }
 
+  // ─── Result Dialog ────────────────────────────────────────────────────────
   void _showResult(String msg, {required bool success}) {
     showGeneralDialog(
       context: context,
@@ -280,6 +284,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     );
   }
 
+  // ─── Build ────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -288,7 +293,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
       appBar: _buildAppBar(),
       body: Stack(
         children: [
+          // Animated bg
           Positioned.fill(child: _AnimatedBg(controller: _bgCtrl)),
+
           SafeArea(
             child: FadeTransition(
               opacity: _formFade,
@@ -367,12 +374,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
           Container(
             width: 38, height: 38,
             decoration: BoxDecoration(
-              color: _C.purple.withOpacity(0.12),
+              color: _C.blue.withOpacity(0.12),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: _C.borderLit),
             ),
             child: const Icon(Icons.person_outline_rounded,
-                color: _C.purpleLight, size: 18),
+                color: _C.blueLight, size: 18),
           ),
           const SizedBox(width: 14),
           Column(
@@ -416,7 +423,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
         border: Border.all(color: _C.border),
         boxShadow: [
           BoxShadow(
-              color: _C.purple.withOpacity(0.06),
+              color: _C.blue.withOpacity(0.06),
               blurRadius: 30,
               offset: const Offset(0, 10)),
         ],
@@ -424,6 +431,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Section header
           Row(children: [
             Container(
               width: 4, height: 18,
@@ -445,7 +453,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
             child: Text('Masukkan password lama & baru',
                 style: TextStyle(color: _C.textSub, fontSize: 12)),
           ),
+
           const SizedBox(height: 24),
+
+          // Old password
           _PasswordField(
             controller: oldPassCtrl,
             focusNode: _oldFocus,
@@ -455,7 +466,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
             onToggle: () => setState(() => _obscureOld = !_obscureOld),
             nextFocus: _newFocus,
           ),
+
           const SizedBox(height: 14),
+
+          // New password
           _PasswordField(
             controller: newPassCtrl,
             focusNode: _newFocus,
@@ -465,6 +479,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
             onToggle: () => setState(() => _obscureNew = !_obscureNew),
             nextFocus: _confirmFocus,
           ),
+
+          // Strength bar
           if (newPassCtrl.text.isNotEmpty) ...[
             const SizedBox(height: 8),
             _StrengthBar(
@@ -473,7 +489,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
               color: _strengthColor,
             ),
           ],
+
           const SizedBox(height: 14),
+
+          // Confirm password
           _PasswordField(
             controller: confirmPassCtrl,
             focusNode: _confirmFocus,
@@ -483,16 +502,23 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
             onToggle: () => setState(() => _obscureConfirm = !_obscureConfirm),
             isLast: true,
             onSubmit: _changePassword,
+            // Show match indicator
             matchState: confirmPassCtrl.text.isEmpty
                 ? null
                 : confirmPassCtrl.text == newPassCtrl.text,
           ),
+
           const SizedBox(height: 28),
+
+          // Submit button
           _SubmitButton(
             isLoading: isLoading,
             onTap: _changePassword,
           ),
+
           const SizedBox(height: 16),
+
+          // Tips
           _buildTips(),
         ],
       ),
@@ -503,7 +529,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: _C.purple.withOpacity(0.05),
+        color: _C.blue.withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _C.border),
       ),
@@ -546,6 +572,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
   }
 }
 
+// ─── Hero Icon ────────────────────────────────────────────────────────────────
 class _HeroIconWidget extends StatefulWidget {
   @override
   State<_HeroIconWidget> createState() => _HeroIconWidgetState();
@@ -579,41 +606,44 @@ class _HeroIconWidgetState extends State<_HeroIconWidget>
           Stack(
             alignment: Alignment.center,
             children: [
+              // Outer glow ring
               Container(
                 width: 110, height: 110,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: _C.purpleMid.withOpacity(_glow.value * 0.3),
+                    color: _C.blueMid.withOpacity(_glow.value * 0.3),
                     width: 1,
                   ),
                 ),
               ),
+              // Mid ring
               Container(
                 width: 90, height: 90,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: _C.purpleMid.withOpacity(_glow.value * 0.5),
+                    color: _C.blueMid.withOpacity(_glow.value * 0.5),
                     width: 1,
                   ),
                 ),
               ),
+              // Core
               Container(
                 width: 70, height: 70,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     colors: [
-                      _C.purple.withOpacity(0.8),
-                      _C.purpleMid.withOpacity(0.9),
+                      _C.blue.withOpacity(0.8),
+                      _C.blueMid.withOpacity(0.9),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: _C.purpleMid.withOpacity(_glow.value * 0.5),
+                      color: _C.blueMid.withOpacity(_glow.value * 0.5),
                       blurRadius: 30,
                       spreadRadius: 0,
                     ),
@@ -637,6 +667,7 @@ class _HeroIconWidgetState extends State<_HeroIconWidget>
   }
 }
 
+// ─── Password Field ───────────────────────────────────────────────────────────
 class _PasswordField extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
@@ -647,7 +678,7 @@ class _PasswordField extends StatefulWidget {
   final FocusNode? nextFocus;
   final bool isLast;
   final VoidCallback? onSubmit;
-  final bool? matchState;
+  final bool? matchState; // null=empty, true=match, false=mismatch
 
   const _PasswordField({
     required this.controller,
@@ -685,7 +716,7 @@ class _PasswordFieldState extends State<_PasswordField> {
     } else if (widget.matchState == false) {
       borderColor = _C.red;
     } else if (_focused) {
-      borderColor = _C.purpleMid;
+      borderColor = _C.blueMid;
     } else {
       borderColor = _C.border;
     }
@@ -702,7 +733,7 @@ class _PasswordFieldState extends State<_PasswordField> {
         boxShadow: _focused
             ? [
                 BoxShadow(
-                  color: _C.purpleMid.withOpacity(0.1),
+                  color: _C.blueMid.withOpacity(0.1),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 )
@@ -724,20 +755,21 @@ class _PasswordFieldState extends State<_PasswordField> {
         },
         style: const TextStyle(
             color: _C.text, fontSize: 14, fontWeight: FontWeight.w500),
-        cursorColor: _C.purpleMid,
+        cursorColor: _C.blueMid,
         decoration: InputDecoration(
           labelText: widget.label,
           labelStyle: const TextStyle(color: _C.textSub, fontSize: 13),
           floatingLabelStyle:
-              const TextStyle(color: _C.purpleMid, fontSize: 11),
+              const TextStyle(color: _C.blueMid, fontSize: 11),
           prefixIcon: Icon(
             widget.icon,
-            color: _focused ? _C.purpleLight : _C.textSub,
+            color: _focused ? _C.blueLight : _C.textSub,
             size: 18,
           ),
           suffixIcon: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Match indicator
               if (widget.matchState != null)
                 Padding(
                   padding: const EdgeInsets.only(right: 4),
@@ -771,6 +803,7 @@ class _PasswordFieldState extends State<_PasswordField> {
   }
 }
 
+// ─── Strength Bar ─────────────────────────────────────────────────────────────
 class _StrengthBar extends StatelessWidget {
   final double strength;
   final String label;
@@ -823,6 +856,7 @@ class _StrengthBar extends StatelessWidget {
   }
 }
 
+// ─── Submit Button ────────────────────────────────────────────────────────────
 class _SubmitButton extends StatefulWidget {
   final bool isLoading;
   final VoidCallback onTap;
@@ -858,7 +892,7 @@ class _SubmitButtonState extends State<_SubmitButton> {
                 ? []
                 : [
                     BoxShadow(
-                      color: _C.purpleMid.withOpacity(0.35),
+                      color: _C.blueMid.withOpacity(0.35),
                       blurRadius: 20,
                       offset: const Offset(0, 6),
                     ),
@@ -900,6 +934,7 @@ class _SubmitButtonState extends State<_SubmitButton> {
   }
 }
 
+// ─── Shared: AnimatedBg ───────────────────────────────────────────────────────
 class _AnimatedBg extends StatelessWidget {
   final AnimationController controller;
   const _AnimatedBg({required this.controller});
@@ -932,10 +967,11 @@ class _BgPainter extends CustomPainter {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
     }
 
+    // Soft glow di tengah-atas
     final paint = Paint()
       ..shader = RadialGradient(
         colors: [
-          _C.purple.withOpacity(0.12 + math.sin(t * math.pi * 2) * 0.04),
+          _C.blue.withOpacity(0.12 + math.sin(t * math.pi * 2) * 0.04),
           Colors.transparent,
         ],
         radius: 0.8,
@@ -950,6 +986,7 @@ class _BgPainter extends CustomPainter {
   bool shouldRepaint(_BgPainter old) => old.t != t;
 }
 
+// ─── Shared: AppBar Back Button ───────────────────────────────────────────────
 class _AppBarBackBtn extends StatefulWidget {
   final VoidCallback onTap;
   const _AppBarBackBtn({required this.onTap});
@@ -984,6 +1021,7 @@ class _AppBarBackBtnState extends State<_AppBarBackBtn> {
   }
 }
 
+// ─── Shared: _GradBtn ─────────────────────────────────────────────────────────
 class _GradBtn extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
@@ -1028,7 +1066,7 @@ class _GradBtnState extends State<_GradBtn> {
                 ? []
                 : [
                     BoxShadow(
-                      color: _C.purpleMid.withOpacity(0.3),
+                      color: _C.blueMid.withOpacity(0.3),
                       blurRadius: 14,
                       offset: const Offset(0, 4),
                     )

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'api_config.dart';
 
 class OwnerPage extends StatefulWidget {
   final String sessionKey;
@@ -38,13 +39,10 @@ class _OwnerPageState extends State<OwnerPage> {
   String newUserRole = 'member';
   bool isLoading = false;
 
-  // --- TEMA WARNA UNGU TUA ---
-  final Color bgDark = const Color(0xFF1A0B2E);
-  final Color primaryPurple = const Color(0xFF6A1B9A);
-  final Color darkPurple = const Color(0xFF4A148C);
-  final Color accentPurple = const Color(0xFF9C27B0);
-  final Color lightPurple = const Color(0xFFCE93D8);
-  final Color goldAccent = const Color(0xFFFFD700);
+  // --- TEMA WARNA CYAN ---
+  final Color bgDark = const Color(0xFF0B1A1A);
+  final Color primaryCyan = const Color(0xFF00ACC1);
+  final Color accentCyan = const Color(0xFF18FFFF);
   final Color primaryWhite = Colors.white;
   final Color textGrey = Colors.grey.shade400;
   final Color cardGlass = Colors.white.withOpacity(0.05);
@@ -195,11 +193,11 @@ class _OwnerPageState extends State<OwnerPage> {
         backgroundColor: bgDark,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: lightPurple.withOpacity(0.3)),
+          side: BorderSide(color: accentCyan.withOpacity(0.3)),
         ),
         title: Row(
           children: [
-            Icon(Icons.info_outline, color: lightPurple),
+            Icon(Icons.info_outline, color: accentCyan),
             const SizedBox(width: 10),
             Text(title, style: TextStyle(color: primaryWhite)),
           ],
@@ -209,7 +207,7 @@ class _OwnerPageState extends State<OwnerPage> {
           Center(
             child: Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [primaryPurple, accentPurple]),
+                gradient: LinearGradient(colors: [primaryCyan, accentCyan]),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: TextButton(
@@ -240,8 +238,8 @@ class _OwnerPageState extends State<OwnerPage> {
         style: TextStyle(color: primaryWhite),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: lightPurple),
-          prefixIcon: Icon(icon, color: lightPurple),
+          labelStyle: TextStyle(color: accentCyan),
+          prefixIcon: Icon(icon, color: accentCyan),
           filled: true,
           fillColor: cardGlass,
           border: OutlineInputBorder(
@@ -254,7 +252,7 @@ class _OwnerPageState extends State<OwnerPage> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: lightPurple, width: 2),
+            borderSide: BorderSide(color: accentCyan, width: 2),
           ),
         ),
       ),
@@ -275,7 +273,7 @@ class _OwnerPageState extends State<OwnerPage> {
         border: Border.all(color: borderGlass),
         boxShadow: [
           BoxShadow(
-            color: primaryPurple.withOpacity(0.1),
+            color: primaryCyan.withOpacity(0.1),
             blurRadius: 15,
             offset: Offset(0, 5),
           ),
@@ -289,10 +287,10 @@ class _OwnerPageState extends State<OwnerPage> {
               Container(
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: primaryPurple.withOpacity(0.2),
+                  color: primaryCyan.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, color: lightPurple),
+                child: Icon(icon, color: accentCyan),
               ),
               SizedBox(width: 12),
               Text(
@@ -328,10 +326,10 @@ class _OwnerPageState extends State<OwnerPage> {
           Container(
             padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: primaryPurple.withOpacity(0.2),
+              color: primaryCyan.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.person, color: lightPurple),
+            child: Icon(Icons.person, color: accentCyan),
           ),
           SizedBox(width: 16),
           Expanded(
@@ -356,12 +354,12 @@ class _OwnerPageState extends State<OwnerPage> {
           ),
           Container(
             decoration: BoxDecoration(
-              color: Colors.redAccent.withOpacity(0.1),
+              color: Colors.cyanAccent.withOpacity(0.1),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+              border: Border.all(color: Colors.cyanAccent.withOpacity(0.3)),
             ),
             child: IconButton(
-              icon: Icon(Icons.delete_outline, color: Colors.redAccent),
+              icon: Icon(Icons.delete_outline, color: Colors.cyanAccent),
               onPressed: () async {
                 final confirm = await showDialog<bool>(
                   context: context,
@@ -369,18 +367,18 @@ class _OwnerPageState extends State<OwnerPage> {
                     backgroundColor: bgDark,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: lightPurple.withOpacity(0.3)),
+                      side: BorderSide(color: accentCyan.withOpacity(0.3)),
                     ),
                     title: Text("Konfirmasi", style: TextStyle(color: primaryWhite)),
                     content: Text("Hapus user ini?", style: TextStyle(color: textGrey)),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
-                        child: Text("Batal", style: TextStyle(color: lightPurple)),
+                        child: Text("Batal", style: TextStyle(color: primaryCyan)),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(context, true),
-                        child: Text("Hapus", style: TextStyle(color: Colors.redAccent)),
+                        child: Text("Hapus", style: TextStyle(color: Colors.cyanAccent)),
                       ),
                     ],
                   ),
@@ -406,7 +404,7 @@ class _OwnerPageState extends State<OwnerPage> {
         return ElevatedButton(
           onPressed: () => setState(() => currentPage = page),
           style: ElevatedButton.styleFrom(
-            backgroundColor: currentPage == page ? lightPurple : Colors.transparent,
+            backgroundColor: currentPage == page ? accentCyan : Colors.transparent,
             foregroundColor: currentPage == page ? primaryWhite : Colors.white54,
             padding: EdgeInsets.symmetric(horizontal: 16),
             shape: RoundedRectangleBorder(
@@ -429,7 +427,7 @@ class _OwnerPageState extends State<OwnerPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [bgDark, darkPurple.withOpacity(0.3), bgDark],
+            colors: [bgDark, primaryCyan.withOpacity(0.1), bgDark],
           ),
         ),
         child: SafeArea(
@@ -439,7 +437,7 @@ class _OwnerPageState extends State<OwnerPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(Icons.workspace_premium, color: goldAccent, size: 50),
+                Icon(Icons.workspace_premium, color: accentCyan, size: 50),
                 SizedBox(height: 10),
                 Text(
                   "OWNER DASHBOARD",
@@ -451,7 +449,7 @@ class _OwnerPageState extends State<OwnerPage> {
                     letterSpacing: 2,
                     shadows: [
                       Shadow(
-                        color: goldAccent.withOpacity(0.8),
+                        color: primaryCyan.withOpacity(0.8),
                         blurRadius: 10,
                       ),
                     ],
@@ -472,11 +470,11 @@ class _OwnerPageState extends State<OwnerPage> {
                     Container(
                       height: 50,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [Colors.redAccent, Colors.red]),
+                        gradient: LinearGradient(colors: [Colors.cyanAccent, Colors.cyan]),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.red.withOpacity(0.3),
+                            color: Colors.cyan.withOpacity(0.3),
                             blurRadius: 10,
                             offset: Offset(0, 4),
                           ),
@@ -557,11 +555,11 @@ class _OwnerPageState extends State<OwnerPage> {
                     Container(
                       height: 50,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [darkPurple, lightPurple]),
+                        gradient: LinearGradient(colors: [primaryCyan, accentCyan]),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: darkPurple.withOpacity(0.4),
+                            color: primaryCyan.withOpacity(0.4),
                             blurRadius: 10,
                             offset: Offset(0, 4),
                           ),
@@ -617,11 +615,11 @@ class _OwnerPageState extends State<OwnerPage> {
                     Container(
                       height: 50,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [darkPurple, lightPurple]),
+                        gradient: LinearGradient(colors: [Colors.cyanAccent, Colors.cyan]),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: darkPurple.withOpacity(0.4),
+                            color: Colors.cyan.withOpacity(0.4),
                             blurRadius: 10,
                             offset: Offset(0, 4),
                           ),
@@ -693,7 +691,7 @@ class _OwnerPageState extends State<OwnerPage> {
                     isLoading
                         ? Center(
                       child: CircularProgressIndicator(
-                        color: lightPurple,
+                        color: accentCyan,
                       ),
                     )
                         : Column(

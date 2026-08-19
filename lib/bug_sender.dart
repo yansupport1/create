@@ -4,33 +4,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'api_config.dart';
 
-// ─── Palette (Ungu Tua) ──────────────────────────────────────────────────────────────────
+// ─── Palette ──────────────────────────────────────────────────────────────────
 class _C {
-  static const bg         = Color(0xFF1A0B2E);      // Ungu tua gelap
-  static const surface    = Color(0xFF2D1B4E);      // Ungu surface
-  static const card       = Color(0xFF3D2A5E);      // Ungu card
-  static const cardHover  = Color(0xFF4A3674);      // Ungu hover
-  static const border     = Color(0xFF5A4A7A);      // Ungu border
-  static const borderLit  = Color(0xFF6B5A8A);      // Ungu border terang
+  static const bg         = Color(0xFF060B14);
+  static const surface    = Color(0xFF0C1424);
+  static const card       = Color(0xFF101A2E);
+  static const cardHover  = Color(0xFF152035);
+  static const border     = Color(0xFF1A2D4A);
+  static const borderLit  = Color(0xFF1E3A5F);
 
-  static const purple     = Color(0xFF6A1B9A);      // Ungu sedang
-  static const purpleMid  = Color(0xFF9C27B0);      // Ungu terang
-  static const purpleLight= Color(0xFFCE93D8);      // Ungu pastel
-  static const purpleFrost= Color(0xFFE1BEE7);      // Ungu sangat terang
-  static const gold       = Color(0xFFFFD700);      // Emas untuk aksen
+  static const blue       = Color(0xFF1B6FBD);
+  static const blueMid    = Color(0xFF2D8FE8);
+  static const blueLight  = Color(0xFF56AEF5);
+  static const blueFrost  = Color(0xFF90CEF7);
 
   static const green      = Color(0xFF22C55E);
   static const greenDim   = Color(0xFF16A34A);
   static const red        = Color(0xFFEF4444);
 
   static const text       = Color(0xFFE2EDF9);
-  static const textSub    = Color(0xFFB39DDB);      // Ungu muda untuk subtext
-  static const textDim    = Color(0xFF7A6A9A);
+  static const textSub    = Color(0xFF7A9BBF);
+  static const textDim    = Color(0xFF3A5470);
 
-  // Gradients (Ungu)
+  // Gradients
   static const LinearGradient btnGrad = LinearGradient(
-    colors: [purpleMid, purpleLight],
+    colors: [blueMid, blueLight],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -66,10 +66,10 @@ class _BugSenderPageState extends State<BugSenderPage>
   String? errorMessage;
 
   // Animasi
-  late AnimationController _bgOrbitCtrl;
-  late AnimationController _headerCtrl;
-  late AnimationController _fabPulseCtrl;
-  late AnimationController _listCtrl;
+  late AnimationController _bgOrbitCtrl;   // orbit ring bg
+  late AnimationController _headerCtrl;    // header entrance
+  late AnimationController _fabPulseCtrl;  // FAB pulse
+  late AnimationController _listCtrl;      // list stagger trigger
 
   late Animation<double> _headerFade;
   late Animation<Offset> _headerSlide;
@@ -240,8 +240,9 @@ class _BugSenderPageState extends State<BugSenderPage>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Header
               Row(children: [
-                _DialogIcon(icon: Icons.add_link_rounded, color: _C.purpleMid),
+                _DialogIcon(icon: Icons.add_link_rounded, color: _C.blueMid),
                 const SizedBox(width: 14),
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,7 +372,7 @@ class _BugSenderPageState extends State<BugSenderPage>
   // ─── Widgets ─────────────────────────────────────────────────────────────────
   Widget _buildSenderCard(Map<String, dynamic> sender, int index) {
     final name    = sender['sessionName'] ?? 'WhatsApp Sender';
-    final isConn  = true;
+    final isConn  = true; // placeholder — bisa pakai field status dari API
 
     return _StaggerItem(
       index: index,
@@ -408,10 +409,15 @@ class _BugSenderPageState extends State<BugSenderPage>
       appBar: _buildAppBar(),
       body: Stack(
         children: [
+          // Animated background
           Positioned.fill(child: _AnimatedBg(controller: _bgOrbitCtrl)),
+
+          // Content
           SafeArea(
             child: _buildBody(),
           ),
+
+          // Loading overlay (subtle)
           if (isLoading && senderList.isNotEmpty)
             Positioned(
               top: kToolbarHeight + MediaQuery.of(context).padding.top + 12,
@@ -469,19 +475,21 @@ class _BugSenderPageState extends State<BugSenderPage>
     if (senderList.isEmpty) return _buildEmptyState();
 
     return RefreshIndicator(
-      color: _C.purpleMid,
+      color: _C.blueMid,
       backgroundColor: _C.card,
       onRefresh: _refreshSenders,
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(
             parent: AlwaysScrollableScrollPhysics()),
         slivers: [
+          // Stat strip
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
               child: _StatStrip(total: senderList.length),
             ),
           ),
+          // Cards
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
             sliver: SliverList(
@@ -510,7 +518,7 @@ class _BugSenderPageState extends State<BugSenderPage>
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: _C.purpleMid.withOpacity(_fabGlow.value),
+                color: _C.blueMid.withOpacity(_fabGlow.value),
                 blurRadius: 28,
                 spreadRadius: 0,
               ),
@@ -554,6 +562,7 @@ class _BgPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Grid
     final gridPaint = Paint()
       ..color = _C.border.withOpacity(0.35)
       ..strokeWidth = 0.5;
@@ -565,6 +574,7 @@ class _BgPainter extends CustomPainter {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
     }
 
+    // Slow orbit glow circles
     final cx = size.width * 0.5;
     final cy = size.height * 0.18;
 
@@ -577,18 +587,19 @@ class _BgPainter extends CustomPainter {
       final paint = Paint()
         ..shader = RadialGradient(
           colors: [
-            _C.purple.withOpacity(0.07 - i * 0.015),
+            _C.blue.withOpacity(0.07 - i * 0.015),
             Colors.transparent,
           ],
         ).createShader(Rect.fromCircle(center: Offset(ox, oy), radius: r));
       canvas.drawCircle(Offset(ox, oy), r, paint);
     }
 
+    // Top vignette
     final vigPaint = Paint()
       ..shader = const LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [Color(0xFF1A0B2E), Colors.transparent],
+        colors: [Color(0xFF060B14), Colors.transparent],
         stops: [0.0, 1.0],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height * 0.4));
     canvas.drawRect(
@@ -649,7 +660,7 @@ class _SenderCardState extends State<_SenderCard>
         border: Border.all(color: _C.border),
         boxShadow: [
           BoxShadow(
-            color: _C.purple.withOpacity(0.07),
+            color: _C.blue.withOpacity(0.07),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -659,11 +670,12 @@ class _SenderCardState extends State<_SenderCard>
         borderRadius: BorderRadius.circular(20),
         child: Column(
           children: [
+            // Top accent line
             Container(
               height: 2,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.transparent, _C.purpleMid, Colors.transparent],
+                  colors: [Colors.transparent, _C.blueMid, Colors.transparent],
                 ),
               ),
             ),
@@ -671,13 +683,15 @@ class _SenderCardState extends State<_SenderCard>
               padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
               child: Column(
                 children: [
+                  // Row 1: avatar + info + status
                   Row(
                     children: [
+                      // WhatsApp-style avatar
                       Container(
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
-                          color: _C.purple.withOpacity(0.12),
+                          color: _C.blue.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(15),
                           border: Border.all(color: _C.borderLit),
                         ),
@@ -685,8 +699,9 @@ class _SenderCardState extends State<_SenderCard>
                           children: [
                             const Center(
                               child: Icon(FontAwesomeIcons.whatsapp,
-                                  color: _C.purpleLight, size: 24),
+                                  color: _C.blueLight, size: 24),
                             ),
+                            // Online dot
                             Positioned(
                               right: 5, bottom: 5,
                               child: AnimatedBuilder(
@@ -713,6 +728,7 @@ class _SenderCardState extends State<_SenderCard>
                         ),
                       ),
                       const SizedBox(width: 14),
+                      // Name + status
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -751,6 +767,7 @@ class _SenderCardState extends State<_SenderCard>
                           ],
                         ),
                       ),
+                      // Status badge
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 5),
@@ -777,12 +794,18 @@ class _SenderCardState extends State<_SenderCard>
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 18),
+
+                  // Divider
                   Container(
                     height: 1,
                     color: _C.border,
                   ),
+
                   const SizedBox(height: 14),
+
+                  // Action buttons
                   Row(children: [
                     Expanded(
                       child: _CardBtn(
@@ -811,6 +834,7 @@ class _SenderCardState extends State<_SenderCard>
   }
 }
 
+// ─── Card Button ──────────────────────────────────────────────────────────────
 class _CardBtn extends StatefulWidget {
   final String label;
   final IconData icon;
@@ -833,7 +857,7 @@ class _CardBtnState extends State<_CardBtn> {
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.isDestructive ? _C.red : _C.purpleLight;
+    final color = widget.isDestructive ? _C.red : _C.blueLight;
 
     return GestureDetector(
       onTapDown: (_) => setState(() => _pressed = true),
@@ -875,6 +899,7 @@ class _CardBtnState extends State<_CardBtn> {
   }
 }
 
+// ─── Pairing Code Dialog (premium) ────────────────────────────────────────────
 class _PairingDialog extends StatefulWidget {
   final String number;
   final String code;
@@ -919,6 +944,7 @@ class _PairingDialogState extends State<_PairingDialog>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Icon area
           AnimatedBuilder(
             animation: _glow,
             builder: (_, __) => Container(
@@ -926,19 +952,19 @@ class _PairingDialogState extends State<_PairingDialog>
               height: 64,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: _C.purple.withOpacity(0.12),
+                color: _C.blue.withOpacity(0.12),
                 boxShadow: [
                   BoxShadow(
-                    color: _C.purpleMid.withOpacity(_glow.value * 0.4),
+                    color: _C.blueMid.withOpacity(_glow.value * 0.4),
                     blurRadius: 30,
                     spreadRadius: 0,
                   ),
                 ],
                 border: Border.all(
-                    color: _C.purpleMid.withOpacity(_glow.value * 0.5)),
+                    color: _C.blueMid.withOpacity(_glow.value * 0.5)),
               ),
               child: const Icon(Icons.phonelink_lock_rounded,
-                  color: _C.purpleLight, size: 28),
+                  color: _C.blueLight, size: 28),
             ),
           ),
           const SizedBox(height: 16),
@@ -950,22 +976,25 @@ class _PairingDialogState extends State<_PairingDialog>
           const SizedBox(height: 6),
           Text('Nomor: ${widget.number}',
               style: const TextStyle(color: _C.textSub, fontSize: 13)),
+
           const SizedBox(height: 24),
+
+          // Code box
           AnimatedBuilder(
             animation: _glow,
             builder: (_, __) => Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 24),
               decoration: BoxDecoration(
-                color: const Color(0xFF1A0B2E),
+                color: const Color(0xFF070E1A),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: _C.purpleMid.withOpacity(_glow.value * 0.6),
+                  color: _C.blueMid.withOpacity(_glow.value * 0.6),
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: _C.purpleMid.withOpacity(_glow.value * 0.25),
+                    color: _C.blueMid.withOpacity(_glow.value * 0.25),
                     blurRadius: 20,
                     spreadRadius: 0,
                   ),
@@ -975,7 +1004,7 @@ class _PairingDialogState extends State<_PairingDialog>
                 widget.code,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: _C.purpleLight.withOpacity(0.9 + _glow.value * 0.1),
+                  color: _C.blueLight.withOpacity(0.9 + _glow.value * 0.1),
                   fontSize: 36,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 10,
@@ -984,17 +1013,23 @@ class _PairingDialogState extends State<_PairingDialog>
               ),
             ),
           ),
+
           const SizedBox(height: 12),
+
+          // Copy button
           _CopyBtn(
             code: widget.code,
             onCopied: () => setState(() => _copied = true),
             copied: _copied,
           ),
+
           const SizedBox(height: 8),
+
+          // Instruction
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: _C.purple.withOpacity(0.07),
+              color: _C.blue.withOpacity(0.07),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: _C.border),
             ),
@@ -1009,7 +1044,9 @@ class _PairingDialogState extends State<_PairingDialog>
               ),
             ]),
           ),
+
           const SizedBox(height: 20),
+
           _GradBtn(
             label: 'Selesai & Refresh',
             icon: Icons.check_rounded,
@@ -1022,6 +1059,7 @@ class _PairingDialogState extends State<_PairingDialog>
   }
 }
 
+// ─── Copy Button ──────────────────────────────────────────────────────────────
 class _CopyBtn extends StatelessWidget {
   final String code;
   final VoidCallback onCopied;
@@ -1092,6 +1130,7 @@ class _CopyBtn extends StatelessWidget {
   }
 }
 
+// ─── Stat Strip ──────────────────────────────────────────────────────────────
 class _StatStrip extends StatelessWidget {
   final int total;
   const _StatStrip({required this.total});
@@ -1108,7 +1147,7 @@ class _StatStrip extends StatelessWidget {
       child: Row(
         children: [
           const Icon(Icons.wifi_tethering_rounded,
-              color: _C.purpleLight, size: 18),
+              color: _C.blueLight, size: 18),
           const SizedBox(width: 10),
           Text('$total sender terdaftar',
               style: const TextStyle(
@@ -1137,6 +1176,7 @@ class _StatStrip extends StatelessWidget {
   }
 }
 
+// ─── Stagger Item ────────────────────────────────────────────────────────────
 class _StaggerItem extends StatelessWidget {
   final int index;
   final Widget child;
@@ -1158,6 +1198,7 @@ class _StaggerItem extends StatelessWidget {
   }
 }
 
+// ─── Empty State ──────────────────────────────────────────────────────────────
 class _EmptyState extends StatefulWidget {
   final VoidCallback onAdd;
   const _EmptyState({required this.onAdd});
@@ -1205,11 +1246,11 @@ class _EmptyStateState extends State<_EmptyState>
                   border: Border.all(color: _C.borderLit),
                   boxShadow: [
                     BoxShadow(
-                        color: _C.purple.withOpacity(0.2), blurRadius: 30),
+                        color: _C.blue.withOpacity(0.2), blurRadius: 30),
                   ],
                 ),
                 child: const Icon(FontAwesomeIcons.whatsapp,
-                    color: _C.purpleLight, size: 38),
+                    color: _C.blueLight, size: 38),
               ),
             ),
             const SizedBox(height: 28),
@@ -1237,6 +1278,7 @@ class _EmptyStateState extends State<_EmptyState>
   }
 }
 
+// ─── Error State ──────────────────────────────────────────────────────────────
 class _ErrorState extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
@@ -1284,6 +1326,9 @@ class _ErrorState extends StatelessWidget {
   }
 }
 
+// ─── Reusable primitives ─────────────────────────────────────────────────────
+
+/// Shell container untuk semua dialog
 class _DialogShell extends StatelessWidget {
   final Widget child;
   final Color? accentColor;
@@ -1292,7 +1337,7 @@ class _DialogShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = accentColor ?? _C.purpleMid;
+    final color = accentColor ?? _C.blueMid;
     return Container(
       constraints: const BoxConstraints(maxWidth: 380),
       decoration: BoxDecoration(
@@ -1333,6 +1378,7 @@ class _DialogIcon extends StatelessWidget {
   }
 }
 
+/// Gradient primary button
 class _GradBtn extends StatefulWidget {
   final String label;
   final IconData? icon;
@@ -1378,7 +1424,7 @@ class _GradBtnState extends State<_GradBtn> {
                 ? []
                 : [
                     BoxShadow(
-                      color: _C.purpleMid.withOpacity(0.3),
+                      color: _C.blueMid.withOpacity(0.3),
                       blurRadius: 16,
                       offset: const Offset(0, 4),
                     ),
@@ -1407,6 +1453,7 @@ class _GradBtnState extends State<_GradBtn> {
   }
 }
 
+/// Outline secondary button
 class _OutlineBtn extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
@@ -1445,6 +1492,7 @@ class _OutlineBtnState extends State<_OutlineBtn> {
   }
 }
 
+/// Input field
 class _InputField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
@@ -1467,14 +1515,14 @@ class _InputField extends StatelessWidget {
       keyboardType: keyboardType,
       style: const TextStyle(
           color: _C.text, fontSize: 14, fontWeight: FontWeight.w500),
-      cursorColor: _C.purpleMid,
+      cursorColor: _C.blueMid,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
         labelStyle: const TextStyle(color: _C.textSub, fontSize: 13),
         hintStyle: const TextStyle(color: _C.textDim),
         floatingLabelStyle:
-            const TextStyle(color: _C.purpleMid, fontSize: 12),
+            const TextStyle(color: _C.blueMid, fontSize: 12),
         prefixIcon: Icon(icon, color: _C.textSub, size: 18),
         filled: true,
         fillColor: _C.surface,
@@ -1488,12 +1536,13 @@ class _InputField extends StatelessWidget {
             borderSide: const BorderSide(color: _C.border)),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: _C.purpleMid, width: 1.5)),
+            borderSide: const BorderSide(color: _C.blueMid, width: 1.5)),
       ),
     );
   }
 }
 
+/// AppBar icon button
 class _AppBarBtn extends StatefulWidget {
   final IconData icon;
   final VoidCallback? onTap;
@@ -1563,6 +1612,7 @@ class _AppBarBtnState extends State<_AppBarBtn>
   }
 }
 
+/// Dots loading animation
 class _DotsLoader extends StatefulWidget {
   const _DotsLoader();
 
@@ -1602,7 +1652,7 @@ class _DotsLoaderState extends State<_DotsLoader>
                 width: 9, height: 9,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _C.purpleMid.withOpacity(0.4 + scale * 0.6),
+                  color: _C.blueMid.withOpacity(0.4 + scale * 0.6),
                 ),
               ),
             ),
@@ -1613,6 +1663,7 @@ class _DotsLoaderState extends State<_DotsLoader>
   }
 }
 
+/// Thin progress bar
 class _ThinProgress extends StatelessWidget {
   const _ThinProgress();
 
@@ -1623,13 +1674,14 @@ class _ThinProgress extends StatelessWidget {
       height: 2,
       child: const LinearProgressIndicator(
         backgroundColor: _C.border,
-        color: _C.purpleMid,
+        color: _C.blueMid,
         borderRadius: BorderRadius.all(Radius.circular(2)),
       ),
     );
   }
 }
 
+/// Pressable ink wrapper
 class _PressableInk extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
@@ -1649,7 +1701,7 @@ class _PressableInk extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(borderRadius),
-        splashColor: _C.purple.withOpacity(0.15),
+        splashColor: _C.blue.withOpacity(0.15),
         child: child,
       ),
     );

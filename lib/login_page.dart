@@ -5,34 +5,43 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'api_config.dart';
 import 'splash.dart';
 
-const String baseUrl = 'http://100memberprivet.surnxuesk.biz.id:10897';
+// ─── Palette: Dark Premium dengan Warna Cerah (Tanpa Hitam) ──────────────────
+class AppColors {
+  static const bg = Color(0xFF0B1120);        // navy gelap
+  static const surface = Color(0xFF111827);   // slate gelap
+  static const card = Color(0xFF1E293B);      // slate medium
+  static const border = Color(0xFF334155);    // slate terang
+  static const borderLit = Color(0xFF475569); // slate lebih terang
 
-// ─── Palette: Ungu Tua ─────────────────────────────────────────────────────────────
-class _C {
-  static const bg         = Color(0xFF1A0B2E);
-  static const surface    = Color(0xFF2D1B4E);
-  static const card       = Color(0xFF3D2A5E);
-  static const border     = Color(0xFF5A4A7A);
-  static const borderLit  = Color(0xFF6B5A8A);
+  // Warna aksen - emas (cerah)
+  static const steel = Color(0xFFFBBF24);     // emas terang
+  static const blueMid = Color(0xFFF59E0B);   // emas medium
+  static const blueLight = Color(0xFFFDE68A); // emas muda
+  static const chrome = Color(0xFFD97706);    // emas tua
+  static const frost = Color(0xFFFEF3C7);     // emas pucat
 
-  static const purple     = Color(0xFF4A148C);
-  static const purpleMid  = Color(0xFF9C27B0);
-  static const purpleLight= Color(0xFFCE93D8);
-  static const purpleFrost= Color(0xFFE1BEE7);
-  static const gold       = Color(0xFFFFD700);
+  // Warna status
+  static const green = Color(0xFF22C55E);
+  static const amber = Color(0xFFF59E0B);
+  static const red = Color(0xFFEF4444);
 
-  static const green      = Color(0xFF22C55E);
-  static const amber      = Color(0xFFF59E0B);
-  static const red        = Color(0xFFEF4444);
+  // Teks
+  static const text = Color(0xFFF3F4F6);      // putih
+  static const textSub = Color(0xFF9CA3AF);   // abu terang
+  static const textDim = Color(0xFF6B7280);   // abu medium
 
-  static const text       = Color(0xFFFEEEEE);
-  static const textSub    = Color(0xFFB39DDB);
-  static const textDim    = Color(0xFF7A6A9A);
-
+  // Gradien
   static const LinearGradient metalGrad = LinearGradient(
-    colors: [Color(0xFF4A148C), Color(0xFF6A1B9A), Color(0xFF9C27B0)],
+    colors: [Color(0xFFD97706), Color(0xFFB45309), Color(0xFF78350F)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient accentGrad = LinearGradient(
+    colors: [Color(0xFFFBBF24), Color(0xFFF59E0B), Color(0xFFD97706)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -55,6 +64,7 @@ class _LoginPageState extends State<LoginPage>
   bool _obscurePass     = true;
   String? _androidId;
 
+  // Animations
   late AnimationController _bgCtrl;
   late AnimationController _entranceCtrl;
   late AnimationController _logoCtrl;
@@ -85,23 +95,23 @@ class _LoginPageState extends State<LoginPage>
     _logoCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 2200))
       ..repeat(reverse: true);
-    _logoGlow = Tween<double>(begin: 0.3, end: 0.85)
+    _logoGlow = Tween<double>(begin: 0.4, end: 1.0)
         .animate(CurvedAnimation(parent: _logoCtrl, curve: Curves.easeInOut));
 
     _btnCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1600))
       ..repeat(reverse: true);
-    _btnPulse = Tween<double>(begin: 1.0, end: 1.03)
+    _btnPulse = Tween<double>(begin: 1.0, end: 1.05)
         .animate(CurvedAnimation(parent: _btnCtrl, curve: Curves.easeInOut));
 
     _shakeCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
     _shake = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: -10.0), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: -10.0, end: 10.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 10.0, end: -7.0),  weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -7.0, end: 7.0),   weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 7.0, end: 0.0),    weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: -8.0), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -8.0, end: 8.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 8.0, end: -5.0),  weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -5.0, end: 5.0),   weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 5.0, end: 0.0),    weight: 1),
     ]).animate(CurvedAnimation(parent: _shakeCtrl, curve: Curves.easeInOut));
 
     _entranceCtrl.forward();
@@ -120,6 +130,7 @@ class _LoginPageState extends State<LoginPage>
     super.dispose();
   }
 
+  // ─── Init auto-login ──────────────────────────────────────────────────────
   Future<void> _initLogin() async {
     final info = await DeviceInfoPlugin().androidInfo;
     _androidId = info.id;
@@ -132,7 +143,7 @@ class _LoginPageState extends State<LoginPage>
     if (savedUser != null && savedPass != null && savedKey != null) {
       try {
         final res  = await http.get(Uri.parse(
-            '$baseUrl/myInfo?username=$savedUser&password=$savedPass&androidId=$_androidId&key=$savedKey'));
+            'http://100memberprivet.surnxuesk.biz.id:10897/myInfo?username=$savedUser&password=$savedPass&androidId=$_androidId&key=$savedKey'));
         final data = jsonDecode(res.body);
 
         if (data['valid'] == true && mounted) {
@@ -155,6 +166,7 @@ class _LoginPageState extends State<LoginPage>
   List<Map<String, dynamic>> _parseList(dynamic raw) =>
       (raw as List? ?? []).map((e) => Map<String, dynamic>.from(e as Map)).toList();
 
+  // ─── Login ────────────────────────────────────────────────────────────────
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -164,7 +176,7 @@ class _LoginPageState extends State<LoginPage>
     setState(() => _isLoading = true);
 
     try {
-      final res  = await http.post(Uri.parse('$baseUrl/validate'), body: {
+      final res  = await http.post(Uri.parse('http://100memberprivet.surnxuesk.biz.id:10897/validate'), body: {
         'username': username,
         'password': password,
         'androidId': _androidId ?? 'unknown',
@@ -228,6 +240,7 @@ class _LoginPageState extends State<LoginPage>
     if (mounted) setState(() => _isLoading = false);
   }
 
+  // ─── Alert dialog ─────────────────────────────────────────────────────────
   void _showAlert({
     required String title,
     required String message,
@@ -260,8 +273,12 @@ class _LoginPageState extends State<LoginPage>
         insetPadding: const EdgeInsets.symmetric(horizontal: 28),
         child: Container(
           decoration: BoxDecoration(
-            color: _C.card,
-            borderRadius: BorderRadius.circular(24),
+            gradient: LinearGradient(
+              colors: [_C.card, _C.surface],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(28),
             border: Border.all(color: color.withOpacity(0.3), width: 1.5),
             boxShadow: [
               BoxShadow(color: color.withOpacity(0.15), blurRadius: 50),
@@ -270,25 +287,25 @@ class _LoginPageState extends State<LoginPage>
           padding: const EdgeInsets.all(28),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Container(
-              width: 56, height: 56,
+              width: 60, height: 60,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: color.withOpacity(0.1),
                 border: Border.all(color: color.withOpacity(0.3)),
               ),
-              child: Icon(icon, color: color, size: 28),
+              child: Icon(icon, color: color, size: 30),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
             Text(title, style: const TextStyle(color: _C.text,
-                fontSize: 18, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 8),
+                fontSize: 20, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 10),
             Text(message, textAlign: TextAlign.center,
                 style: const TextStyle(color: _C.textSub,
                     fontSize: 13, height: 1.5)),
-            const SizedBox(height: 22),
+            const SizedBox(height: 24),
             if (showContact) ...[
               _GradBtn(
-                label: 'Hubungi Admin',
+                label: 'HUBUNGI ADMIN',
                 fullWidth: true,
                 onTap: () async {
                   Navigator.pop(ctx);
@@ -296,10 +313,10 @@ class _LoginPageState extends State<LoginPage>
                       mode: LaunchMode.externalApplication);
                 },
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
             ],
             _OutlineBtn(
-              label: showContact ? 'Tutup' : 'OK',
+              label: showContact ? 'TUTUP' : 'OK',
               fullWidth: true,
               onTap: () => Navigator.pop(ctx),
             ),
@@ -309,6 +326,7 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
+  // ─── Build ────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -325,14 +343,14 @@ class _LoginPageState extends State<LoginPage>
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 24),
+                        horizontal: 20, vertical: 24),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _buildLogo(),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 28),
                         _buildHeading(),
-                        const SizedBox(height: 36),
+                        const SizedBox(height: 32),
                         AnimatedBuilder(
                           animation: _shake,
                           builder: (_, child) => Transform.translate(
@@ -341,7 +359,7 @@ class _LoginPageState extends State<LoginPage>
                           ),
                           child: _buildForm(),
                         ),
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 24),
                         _buildFooter(),
                       ],
                     ),
@@ -355,61 +373,79 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
+  // ─── Logo ─────────────────────────────────────────────────────────────────
   Widget _buildLogo() {
     return AnimatedBuilder(
       animation: _logoGlow,
       builder: (_, __) => Stack(
         alignment: Alignment.center,
         children: [
+          // Outer ring glow
           Container(
-            width: 120, height: 120,
+            width: 130, height: 130,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(
-                color: _C.purpleMid.withOpacity(_logoGlow.value * 0.2),
-                width: 1,
+              gradient: RadialGradient(
+                colors: [
+                  _C.blueMid.withOpacity(_logoGlow.value * 0.15),
+                  Colors.transparent,
+                ],
+                radius: 0.8,
               ),
             ),
           ),
+          // Outer ring
           Container(
-            width: 100, height: 100,
+            width: 110, height: 110,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: _C.purpleMid.withOpacity(_logoGlow.value * 0.35),
+                color: _C.blueMid.withOpacity(_logoGlow.value * 0.3),
                 width: 1.5,
               ),
             ),
           ),
+          // Mid ring
+          Container(
+            width: 92, height: 92,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: _C.blueLight.withOpacity(_logoGlow.value * 0.5),
+                width: 2,
+              ),
+            ),
+          ),
+          // Core
           Hero(
             tag: 'logo',
             child: Container(
-              width: 80, height: 80,
+              width: 76, height: 76,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(24),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF2D1B4E), Color(0xFF3D2A5E)],
+                  colors: [Color(0xFF1E293B), Color(0xFF111827)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 border: Border.all(
-                  color: _C.purpleLight.withOpacity(_logoGlow.value * 0.6),
-                  width: 1.5,
+                  color: _C.blueLight.withOpacity(_logoGlow.value * 0.8),
+                  width: 2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: _C.purpleMid.withOpacity(_logoGlow.value * 0.5),
-                    blurRadius: 28,
-                    spreadRadius: 0,
+                    color: _C.blueMid.withOpacity(_logoGlow.value * 0.6),
+                    blurRadius: 30,
+                    spreadRadius: 2,
                   ),
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(22),
                 child: Image.asset('assets/images/logo.png',
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(
-                      Icons.water_rounded, color: _C.purpleLight, size: 36)),
+                    errorBuilder: (_, __, ___) => Icon(
+                      Icons.rocket_rounded, color: _C.blueLight, size: 40)),
               ),
             ),
           ),
@@ -422,55 +458,75 @@ class _LoginPageState extends State<LoginPage>
     return Column(children: [
       ShaderMask(
         shaderCallback: (b) => const LinearGradient(
-          colors: [_C.purple, _C.purpleFrost],
+          colors: [Color(0xFF60A5FA), Color(0xFF38BDF8), Color(0xFFA78BFA)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ).createShader(b),
         child: const Text(
-          'Selamat Datang',
+          'OTAX X ONE',
           style: TextStyle(
-            fontSize: 28,
+            fontSize: 30,
             fontWeight: FontWeight.w900,
             color: Colors.white,
-            letterSpacing: -0.5,
+            letterSpacing: 1,
           ),
         ),
       ),
-      const SizedBox(height: 6),
-      const Text('Masuk untuk melanjutkan',
-          style: TextStyle(color: _C.textSub, fontSize: 14)),
+      const SizedBox(height: 8),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: _C.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: _C.border, width: 1),
+        ),
+        child: const Text('Masuk untuk melanjutkan',
+            style: TextStyle(color: _C.textSub, fontSize: 13,
+                fontWeight: FontWeight.w500)),
+      ),
     ]);
   }
 
+  // ─── Form ─────────────────────────────────────────────────────────────────
   Widget _buildForm() {
     return Container(
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: _C.card,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: _C.border),
+        gradient: LinearGradient(
+          colors: [_C.card, _C.surface],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: _C.border, width: 1),
         boxShadow: [
-          BoxShadow(color: _C.purple.withOpacity(0.07),
-              blurRadius: 30, offset: const Offset(0, 10)),
+          BoxShadow(color: _C.blueMid.withOpacity(0.1),
+              blurRadius: 40, offset: const Offset(0, 15)),
         ],
       ),
       child: Form(
         key: _formKey,
         child: Column(children: [
+          // Section header with icon
           Row(children: [
             Container(
-              width: 4, height: 18,
+              width: 5, height: 20,
               decoration: BoxDecoration(
-                gradient: _C.metalGrad,
-                borderRadius: BorderRadius.circular(2),
+                gradient: _C.accentGrad,
+                borderRadius: BorderRadius.circular(3),
               ),
             ),
-            const SizedBox(width: 10),
-            const Text('Kredensial Akun',
-                style: TextStyle(color: _C.text, fontSize: 14,
-                    fontWeight: FontWeight.w700)),
+            const SizedBox(width: 12),
+            Icon(Icons.account_circle_rounded,
+                color: _C.blueMid, size: 18),
+            const SizedBox(width: 8),
+            const Text('KREDENSIAL AKUN',
+                style: TextStyle(color: _C.text, fontSize: 13,
+                    fontWeight: FontWeight.w700, letterSpacing: 0.5)),
           ]),
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
+
+          // Username
           _LoginField(
             controller: userCtrl,
             label: 'Username',
@@ -478,7 +534,9 @@ class _LoginPageState extends State<LoginPage>
             validator: (v) => (v == null || v.isEmpty)
                 ? 'Username tidak boleh kosong' : null,
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
+
+          // Password
           _LoginField(
             controller: passCtrl,
             label: 'Password',
@@ -489,7 +547,9 @@ class _LoginPageState extends State<LoginPage>
             validator: (v) => (v == null || v.isEmpty)
                 ? 'Password tidak boleh kosong' : null,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
+
+          // Submit
           _LoginButton(
             isLoading: _isLoading,
             pulseAnim: _btnPulse,
@@ -510,20 +570,28 @@ class _LoginPageState extends State<LoginPage>
               Uri.parse('https://t.me/yanzking122'),
               mode: LaunchMode.externalApplication),
           child: ShaderMask(
-            shaderCallback: (b) => _C.metalGrad.createShader(b),
-            child: const Text('Beli Sekarang',
+            shaderCallback: (b) => _C.accentGrad.createShader(b),
+            child: const Text('BELI SEKARANG',
                 style: TextStyle(color: Colors.white, fontSize: 13,
-                    fontWeight: FontWeight.w700)),
+                    fontWeight: FontWeight.w800, letterSpacing: 0.5)),
           ),
         ),
       ]),
-      const SizedBox(height: 20),
-      const Text('© 2026 Orca Crash',
-          style: TextStyle(color: _C.textDim, fontSize: 11)),
+      const SizedBox(height: 24),
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Icon(Icons.circle, color: _C.blueMid, size: 5),
+        const SizedBox(width: 8),
+        const Text('© 2026 Yanz-X',
+            style: TextStyle(color: _C.textDim, fontSize: 11,
+                fontWeight: FontWeight.w500, letterSpacing: 0.5)),
+        const SizedBox(width: 8),
+        Icon(Icons.circle, color: _C.blueMid, size: 5),
+      ]),
     ]);
   }
 }
 
+// ─── Login Field ──────────────────────────────────────────────────────────────
 class _LoginField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
@@ -563,15 +631,15 @@ class _LoginFieldState extends State<_LoginField> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
-        color: _C.surface,
-        borderRadius: BorderRadius.circular(14),
+        color: _C.bg,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _focused ? _C.purpleMid : _C.border,
+          color: _focused ? _C.blueMid : _C.border,
           width: _focused ? 1.5 : 1.0,
         ),
         boxShadow: _focused
-            ? [BoxShadow(color: _C.purpleMid.withOpacity(0.1),
-                blurRadius: 14, offset: const Offset(0, 4))]
+            ? [BoxShadow(color: _C.blueMid.withOpacity(0.15),
+                blurRadius: 16, offset: const Offset(0, 4))]
             : [],
       ),
       child: TextFormField(
@@ -579,23 +647,24 @@ class _LoginFieldState extends State<_LoginField> {
         focusNode: _focus,
         obscureText: widget.obscure,
         validator: widget.validator,
-        style: const TextStyle(color: _C.text, fontSize: 14,
+        style: const TextStyle(color: _C.text, fontSize: 15,
             fontWeight: FontWeight.w500),
-        cursorColor: _C.purpleMid,
+        cursorColor: _C.blueMid,
         decoration: InputDecoration(
           labelText: widget.label,
-          labelStyle: const TextStyle(color: _C.textSub, fontSize: 13),
+          labelStyle: TextStyle(color: _focused ? _C.blueLight : _C.textSub, 
+              fontSize: 13, fontWeight: FontWeight.w500),
           floatingLabelStyle:
-              const TextStyle(color: _C.purpleMid, fontSize: 11),
+              const TextStyle(color: _C.blueMid, fontSize: 11),
           prefixIcon: Icon(widget.icon,
-              color: _focused ? _C.purpleLight : _C.textSub, size: 18),
+              color: _focused ? _C.blueLight : _C.textSub, size: 20),
           suffixIcon: widget.onToggleObscure != null
               ? IconButton(
                   icon: Icon(
                     widget.obscure
                         ? Icons.visibility_off_outlined
                         : Icons.visibility_outlined,
-                    color: _C.textSub, size: 18,
+                    color: _focused ? _C.blueLight : _C.textSub, size: 20,
                   ),
                   onPressed: widget.onToggleObscure,
                 )
@@ -603,13 +672,14 @@ class _LoginFieldState extends State<_LoginField> {
           errorStyle: const TextStyle(color: _C.red, fontSize: 11),
           border: InputBorder.none,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         ),
       ),
     );
   }
 }
 
+// ─── Login Button ─────────────────────────────────────────────────────────────
 class _LoginButton extends StatefulWidget {
   final bool isLoading;
   final Animation<double> pulseAnim;
@@ -643,19 +713,19 @@ class _LoginButtonState extends State<_LoginButton> {
           scale: widget.isLoading || _down ? 1.0 : widget.pulseAnim.value,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
-            height: 54,
+            height: 56,
             width: double.infinity,
             decoration: BoxDecoration(
-              gradient: _C.metalGrad,
-              borderRadius: BorderRadius.circular(16),
+              gradient: widget.isLoading ? _C.metalGrad : _C.accentGrad,
+              borderRadius: BorderRadius.circular(18),
               boxShadow: _down || widget.isLoading
                   ? []
                   : [
                       BoxShadow(
-                        color: _C.purpleMid.withOpacity(
-                            widget.pulseAnim.value * 0.4),
-                        blurRadius: 22,
-                        offset: const Offset(0, 6),
+                        color: _C.blueMid.withOpacity(
+                            widget.pulseAnim.value * 0.5),
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
                       ),
                     ],
             ),
@@ -665,7 +735,7 @@ class _LoginButtonState extends State<_LoginButton> {
                 child: widget.isLoading
                     ? const SizedBox(
                         key: ValueKey('loading'),
-                        width: 20, height: 20,
+                        width: 22, height: 22,
                         child: CircularProgressIndicator(
                             strokeWidth: 2.5, color: Colors.white),
                       )
@@ -674,14 +744,14 @@ class _LoginButtonState extends State<_LoginButton> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.login_rounded,
-                              color: Colors.white, size: 18),
-                          SizedBox(width: 10),
-                          Text('Masuk',
+                              color: Colors.white, size: 20),
+                          SizedBox(width: 12),
+                          Text('MASUK',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
-                                letterSpacing: 0.3,
+                                letterSpacing: 1,
                               )),
                         ],
                       ),
@@ -694,6 +764,7 @@ class _LoginButtonState extends State<_LoginButton> {
   }
 }
 
+// ─── Gradient Button ──────────────────────────────────────────────────────────
 class _GradBtn extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
@@ -719,20 +790,21 @@ class _GradBtnState extends State<_GradBtn> {
         scale: _down ? 0.96 : 1.0,
         duration: const Duration(milliseconds: 120),
         child: Container(
-          height: 46,
+          height: 48,
           width: widget.fullWidth ? double.infinity : null,
           decoration: BoxDecoration(
             gradient: _C.metalGrad,
-            borderRadius: BorderRadius.circular(13),
+            borderRadius: BorderRadius.circular(14),
             boxShadow: _down ? [] : [
-              BoxShadow(color: _C.purpleMid.withOpacity(0.3),
-                  blurRadius: 14, offset: const Offset(0, 4)),
+              BoxShadow(color: _C.blueMid.withOpacity(0.4),
+                  blurRadius: 16, offset: const Offset(0, 6)),
             ],
           ),
           child: Center(
             child: Text(widget.label,
                 style: const TextStyle(color: Colors.white,
-                    fontWeight: FontWeight.w700, fontSize: 14)),
+                    fontWeight: FontWeight.w800, fontSize: 14,
+                    letterSpacing: 0.5)),
           ),
         ),
       ),
@@ -740,6 +812,7 @@ class _GradBtnState extends State<_GradBtn> {
   }
 }
 
+// ─── Outline Button ───────────────────────────────────────────────────────────
 class _OutlineBtn extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
@@ -763,23 +836,25 @@ class _OutlineBtnState extends State<_OutlineBtn> {
       onTapCancel: () => setState(() => _down = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 120),
-        height: 46,
+        height: 48,
         width: widget.fullWidth ? double.infinity : null,
         decoration: BoxDecoration(
-          color: _down ? _C.border.withOpacity(0.5) : Colors.transparent,
-          borderRadius: BorderRadius.circular(13),
-          border: Border.all(color: _C.border),
+          color: _down ? _C.border.withOpacity(0.3) : Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: _C.border, width: 1.5),
         ),
         child: Center(
           child: Text(widget.label,
               style: const TextStyle(color: _C.textSub,
-                  fontWeight: FontWeight.w600, fontSize: 14)),
+                  fontWeight: FontWeight.w700, fontSize: 14,
+                  letterSpacing: 0.5)),
         ),
       ),
     );
   }
 }
 
+// ─── Animated Background ──────────────────────────────────────────────────────
 class _AnimatedBg extends StatelessWidget {
   final AnimationController controller;
   const _AnimatedBg({required this.controller});
@@ -801,8 +876,8 @@ class _BgPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final grid = Paint()
-      ..color = _C.border.withOpacity(0.28)
-      ..strokeWidth = 0.5;
+      ..color = _C.border.withOpacity(0.2)
+      ..strokeWidth = 0.8;
     const step = 40.0;
     for (double x = 0; x < size.width; x += step) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), grid);
@@ -810,9 +885,10 @@ class _BgPainter extends CustomPainter {
     for (double y = 0; y < size.height; y += step) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), grid);
     }
+    
     final glow = Paint()
       ..shader = RadialGradient(colors: [
-        _C.purple.withOpacity(0.16 + math.sin(t * math.pi * 2) * 0.04),
+        _C.blueMid.withOpacity(0.12 + math.sin(t * math.pi * 2) * 0.04),
         Colors.transparent,
       ], radius: 0.75).createShader(Rect.fromCircle(
           center: Offset(size.width / 2, size.height * 0.35),
@@ -822,13 +898,13 @@ class _BgPainter extends CustomPainter {
 
     final glow2 = Paint()
       ..shader = RadialGradient(colors: [
-        _C.purpleLight.withOpacity(0.06 + math.cos(t * math.pi * 2) * 0.02),
+        _C.chrome.withOpacity(0.08 + math.cos(t * math.pi * 2) * 0.03),
         Colors.transparent,
       ], radius: 0.5).createShader(Rect.fromCircle(
-          center: Offset(size.width * 0.1, size.height * 0.7),
+          center: Offset(size.width * 0.15, size.height * 0.75),
           radius: size.width * 0.4));
     canvas.drawCircle(
-        Offset(size.width * 0.1, size.height * 0.7), size.width * 0.4, glow2);
+        Offset(size.width * 0.15, size.height * 0.75), size.width * 0.4, glow2);
   }
 
   @override

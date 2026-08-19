@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'api_config.dart';
 
 class SellerPage extends StatefulWidget {
-  final String keyToken; // Sesuaikan nama parameter dengan snippet backend
+  final String keyToken;
 
   const SellerPage({super.key, required this.keyToken});
 
@@ -16,14 +17,12 @@ class _SellerPageState extends State<SellerPage> {
   List<dynamic> fullUserList = [];
   List<dynamic> filteredList = [];
 
-  // Role Options untuk List
   final List<String> roleOptions = ['member'];
   String selectedRole = 'member';
 
   int currentPage = 1;
   int itemsPerPage = 25;
 
-  // Controllers
   final createUsernameController = TextEditingController();
   final createPasswordController = TextEditingController();
   final createDayController = TextEditingController();
@@ -33,10 +32,10 @@ class _SellerPageState extends State<SellerPage> {
 
   bool isLoading = false;
 
-  // --- TEMA WARNA UNGU ---
-  final Color bgDark = const Color(0xFF0D0221);
-  final Color primaryPurple = const Color(0xFF7B1FA2);
-  final Color accentPurple = const Color(0xFFEA80FC);
+  // --- TEMA WARNA CYAN ---
+  final Color bgDark = const Color(0xFF0B1A1A);
+  final Color primaryCyan = const Color(0xFF00ACC1);
+  final Color accentCyan = const Color(0xFF18FFFF);
   final Color primaryWhite = Colors.white;
   final Color cardGlass = Colors.white.withOpacity(0.05);
   final Color borderGlass = Colors.white.withOpacity(0.1);
@@ -86,7 +85,6 @@ class _SellerPageState extends State<SellerPage> {
 
   int get totalPages => (filteredList.length / itemsPerPage).ceil();
 
-  // --- FITUR 1: CREATE ACCOUNT (SESUAI SNIPPET) ---
   Future<void> _createAccount() async {
     final u = createUsernameController.text.trim();
     final p = createPasswordController.text.trim();
@@ -110,7 +108,6 @@ class _SellerPageState extends State<SellerPage> {
         createDayController.clear();
         _fetchUsers();
       } else {
-        // Cek error khusus invalidDay dari backend
         String msg = data['message'] ?? 'Gagal membuat akun.';
         if (data['invalidDay'] == true) {
           msg += " (Max 30 hari untuk Reseller)";
@@ -123,7 +120,6 @@ class _SellerPageState extends State<SellerPage> {
     setState(() => isLoading = false);
   }
 
-  // --- FITUR 2: EDIT USER / ADD DAYS (SESUAI SNIPPET) ---
   Future<void> _editUser() async {
     final u = editUsernameController.text.trim();
     final d = editDayController.text.trim();
@@ -143,9 +139,8 @@ class _SellerPageState extends State<SellerPage> {
         _alert("Sukses", "✅ Durasi berhasil diperbarui.");
         editUsernameController.clear();
         editDayController.clear();
-        _fetchUsers(); // Refresh list agar tanggal expired berubah
+        _fetchUsers();
       } else {
-        // Cek error spesifik (misal user tidak member atau tidak ditemukan)
         _alert("Gagal", "❌ ${data['message'] ?? 'Gagal mengubah durasi.'}");
       }
     } catch (e) {
@@ -161,11 +156,11 @@ class _SellerPageState extends State<SellerPage> {
         backgroundColor: bgDark,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: accentPurple.withOpacity(0.3)),
+          side: BorderSide(color: accentCyan.withOpacity(0.3)),
         ),
         title: Row(
           children: [
-            Icon(Icons.info_outline, color: accentPurple),
+            Icon(Icons.info_outline, color: accentCyan),
             const SizedBox(width: 10),
             Text(title, style: TextStyle(color: primaryWhite)),
           ],
@@ -175,7 +170,7 @@ class _SellerPageState extends State<SellerPage> {
           Center(
             child: Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [primaryPurple, accentPurple]),
+                gradient: LinearGradient(colors: [primaryCyan, accentCyan]),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: TextButton(
@@ -206,8 +201,8 @@ class _SellerPageState extends State<SellerPage> {
           labelText: label,
           hintText: hint,
           hintStyle: TextStyle(color: Colors.white38),
-          labelStyle: TextStyle(color: accentPurple),
-          prefixIcon: Icon(icon, color: accentPurple),
+          labelStyle: TextStyle(color: accentCyan),
+          prefixIcon: Icon(icon, color: accentCyan),
           filled: true,
           fillColor: cardGlass,
           border: OutlineInputBorder(
@@ -220,7 +215,7 @@ class _SellerPageState extends State<SellerPage> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: accentPurple, width: 2),
+            borderSide: BorderSide(color: accentCyan, width: 2),
           ),
         ),
       ),
@@ -241,7 +236,7 @@ class _SellerPageState extends State<SellerPage> {
         border: Border.all(color: borderGlass),
         boxShadow: [
           BoxShadow(
-            color: primaryPurple.withOpacity(0.1),
+            color: primaryCyan.withOpacity(0.1),
             blurRadius: 15,
             offset: Offset(0, 5),
           ),
@@ -255,10 +250,10 @@ class _SellerPageState extends State<SellerPage> {
               Container(
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: primaryPurple.withOpacity(0.2),
+                  color: primaryCyan.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, color: accentPurple),
+                child: Icon(icon, color: accentCyan),
               ),
               SizedBox(width: 12),
               Text(
@@ -294,10 +289,10 @@ class _SellerPageState extends State<SellerPage> {
           Container(
             padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: primaryPurple.withOpacity(0.2),
+              color: primaryCyan.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.person, color: accentPurple),
+            child: Icon(Icons.person, color: accentCyan),
           ),
           SizedBox(width: 16),
           Expanded(
@@ -330,7 +325,7 @@ class _SellerPageState extends State<SellerPage> {
         return ElevatedButton(
           onPressed: () => setState(() => currentPage = page),
           style: ElevatedButton.styleFrom(
-            backgroundColor: currentPage == page ? accentPurple : Colors.transparent,
+            backgroundColor: currentPage == page ? accentCyan : Colors.transparent,
             foregroundColor: currentPage == page ? primaryWhite : Colors.white54,
             padding: EdgeInsets.symmetric(horizontal: 16),
             shape: RoundedRectangleBorder(
@@ -353,7 +348,7 @@ class _SellerPageState extends State<SellerPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [bgDark, primaryPurple.withOpacity(0.1), bgDark],
+            colors: [bgDark, primaryCyan.withOpacity(0.1), bgDark],
           ),
         ),
         child: SafeArea(
@@ -363,7 +358,7 @@ class _SellerPageState extends State<SellerPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(Icons.storefront, color: accentPurple, size: 50),
+                Icon(Icons.storefront, color: accentCyan, size: 50),
                 SizedBox(height: 10),
                 Text(
                   "SELLER DASHBOARD",
@@ -373,12 +368,11 @@ class _SellerPageState extends State<SellerPage> {
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Orbitron',
                     letterSpacing: 2,
-                    shadows: [Shadow(color: primaryPurple.withOpacity(0.8), blurRadius: 10)],
+                    shadows: [Shadow(color: primaryCyan.withOpacity(0.8), blurRadius: 10)],
                   ),
                 ),
                 SizedBox(height: 40),
 
-                // SECTION 1: CREATE ACCOUNT
                 _buildGlassCard(
                   title: "CREATE MEMBER",
                   icon: FontAwesomeIcons.userPlus,
@@ -404,10 +398,10 @@ class _SellerPageState extends State<SellerPage> {
                     Container(
                       height: 50,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [primaryPurple, accentPurple]),
+                        gradient: LinearGradient(colors: [primaryCyan, accentCyan]),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
-                          BoxShadow(color: primaryPurple.withOpacity(0.4), blurRadius: 10, offset: Offset(0, 4))
+                          BoxShadow(color: primaryCyan.withOpacity(0.4), blurRadius: 10, offset: Offset(0, 4))
                         ],
                       ),
                       child: ElevatedButton(
@@ -425,7 +419,6 @@ class _SellerPageState extends State<SellerPage> {
                   ],
                 ),
 
-                // SECTION 2: EDIT / EXTEND DURATION
                 _buildGlassCard(
                   title: "EXTEND DURATION",
                   icon: FontAwesomeIcons.clock,
@@ -447,10 +440,10 @@ class _SellerPageState extends State<SellerPage> {
                     Container(
                       height: 50,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [Colors.blue, Colors.lightBlueAccent]),
+                        gradient: LinearGradient(colors: [primaryCyan, accentCyan]),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
-                          BoxShadow(color: Colors.blue.withOpacity(0.4), blurRadius: 10, offset: Offset(0, 4))
+                          BoxShadow(color: primaryCyan.withOpacity(0.4), blurRadius: 10, offset: Offset(0, 4))
                         ],
                       ),
                       child: ElevatedButton(
@@ -468,7 +461,6 @@ class _SellerPageState extends State<SellerPage> {
                   ],
                 ),
 
-                // SECTION 3: USER LIST
                 _buildGlassCard(
                   title: "MEMBER LIST",
                   icon: FontAwesomeIcons.users,
@@ -499,7 +491,7 @@ class _SellerPageState extends State<SellerPage> {
                     ),
                     SizedBox(height: 20),
                     isLoading
-                        ? Center(child: CircularProgressIndicator(color: accentPurple))
+                        ? Center(child: CircularProgressIndicator(color: accentCyan))
                         : Column(
                       children: [
                         ..._getCurrentPageData().map((u) => _buildUserItem(u)).toList(),

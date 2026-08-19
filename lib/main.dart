@@ -840,7 +840,7 @@ class _OrcaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title:           'Orca Crash',
+      title:           'Astral Engine',
       theme:           _AppTheme.build(),
       initialRoute:    '/',
       onGenerateRoute: _generateRoute,
