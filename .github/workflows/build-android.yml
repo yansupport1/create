@@ -90,6 +90,7 @@ jobs:
             uses-material-design: true
           PUBSPEC
 
+          rm -rf test
           mkdir -p lib
           cat > lib/main.dart <<'DART'
           import 'package:flutter/material.dart';
