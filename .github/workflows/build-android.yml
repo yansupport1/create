@@ -29,10 +29,6 @@ on:
 permissions:
   contents: read
 
-defaults:
-  run:
-    working-directory: github-deploy
-
 jobs:
   build:
     name: Build APK
@@ -45,10 +41,10 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -60,11 +56,152 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Prepare Android platform
+      - name: Create Flutter project
         shell: bash
         run: |
           set -euo pipefail
 
+          if [ ! -f pubspec.yaml ]; then
+            flutter create \
+              --no-pub \
+              --platforms=android \
+              --project-name webview_app \
+              --org com.webviewapp \
+              .
+          fi
+
+          cat > pubspec.yaml <<'PUBSPEC'
+          name: webview_app
+          description: A Flutter WebView application built by GitHub Actions
+          publish_to: "none"
+          version: 1.0.0+1
+
+          environment:
+            sdk: ">=3.0.0 <4.0.0"
+
+          dependencies:
+            flutter:
+              sdk: flutter
+            webview_flutter: ^4.7.0
+
+          dev_dependencies:
+            flutter_lints: ^3.0.0
+
+          flutter:
+            uses-material-design: true
+          PUBSPEC
+
+          mkdir -p lib
+          cat > lib/main.dart <<'DART'
+          import 'package:flutter/material.dart';
+          import 'package:webview_flutter/webview_flutter.dart';
+
+          const kWebViewUrl = String.fromEnvironment(
+            'WEBVIEW_URL',
+            defaultValue: 'https://example.com',
+          );
+          const kAppName = String.fromEnvironment(
+            'APP_NAME',
+            defaultValue: 'WebView App',
+          );
+
+          void main() => runApp(const WebViewApp());
+
+          class WebViewApp extends StatelessWidget {
+            const WebViewApp({super.key});
+
+            @override
+            Widget build(BuildContext context) {
+              return MaterialApp(
+                title: kAppName,
+                debugShowCheckedModeBanner: false,
+                home: const WebViewPage(),
+              );
+            }
+          }
+
+          class WebViewPage extends StatefulWidget {
+            const WebViewPage({super.key});
+
+            @override
+            State<WebViewPage> createState() => _WebViewPageState();
+          }
+
+          class _WebViewPageState extends State<WebViewPage> {
+            late final WebViewController _controller;
+            bool _loading = true;
+
+            @override
+            void initState() {
+              super.initState();
+              final uri = Uri.tryParse(kWebViewUrl);
+              if (uri == null || !uri.hasScheme || uri.host.isEmpty) return;
+              _controller = WebViewController()
+                ..setJavaScriptMode(JavaScriptMode.unrestricted)
+                ..setNavigationDelegate(
+                  NavigationDelegate(
+                    onPageStarted: (_) {
+                      if (mounted) setState(() => _loading = true);
+                    },
+                    onPageFinished: (_) {
+                      if (mounted) setState(() => _loading = false);
+                    },
+                  ),
+                )
+                ..loadRequest(uri);
+            }
+
+            @override
+            Widget build(BuildContext context) {
+              final uri = Uri.tryParse(kWebViewUrl);
+              if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
+                return const Scaffold(
+                  body: Center(child: Text('URL WebView tidak valid')),
+                );
+              }
+              return Scaffold(
+                appBar: AppBar(title: const Text(kAppName)),
+                body: Stack(
+                  children: [
+                    WebViewWidget(controller: _controller),
+                    if (_loading) const LinearProgressIndicator(),
+                  ],
+                ),
+              );
+            }
+          }
+          DART
+
+          manifest='android/app/src/main/AndroidManifest.xml'
+          if [ -f "$manifest" ] && ! grep -q 'android.permission.INTERNET' "$manifest"; then
+            sed -i '/<manifest[[:space:]]/a\    <uses-permission android:name="android.permission.INTERNET" />' "$manifest"
+          fi
+
+          flutter pub get
+
+      - name: Validate Flutter project
+        run: flutter analyze --no-fatal-infos
+
+      - name: Build APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter build apk \
+            --${BUILD_MODE} \
+            --dart-define="WEBVIEW_URL=${WEBVIEW_URL}" \
+            --dart-define="APP_NAME=${APP_NAME}"
+
+      - name: Show APK outputs
+        if: always()
+        run: find build -type f -name '*.apk' -print || true
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ inputs.mode || 'debug' }}-${{ github.run_number }}
+          path: build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: error
+          retention-days: 7
           if [ ! -f pubspec.yaml ]; then
             echo 'pubspec.yaml tidak ditemukan di github-deploy.' >&2
             exit 1
