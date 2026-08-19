@@ -4,68 +4,104 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "debug atau release"
+        description: "Mode build"
         required: false
-        default: "debug"
+        default: debug
         type: choice
         options:
           - debug
           - release
       app_name:
-        description: "Nama aplikasi (WebView build)"
+        description: "Nama aplikasi WebView"
         required: false
-        default: ""
+        default: WebView App
+        type: string
       webview_url:
-        description: "URL WebView"
+        description: "URL yang dibuka oleh WebView"
         required: false
-        default: ""
+        default: https://example.com
+        type: string
   push:
-    branches: [main, master]
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
 
 jobs:
   build:
     name: Build APK
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v4
+    env:
+      BUILD_MODE: ${{ inputs.mode || 'debug' }}
+      APP_NAME: ${{ inputs.app_name || 'WebView App' }}
+      WEBVIEW_URL: ${{ inputs.webview_url || 'https://example.com' }}
 
-      - uses: actions/setup-java@v4
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: '17'
+          cache: gradle
 
-      - uses: subosito/flutter-action@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Inject WebView config (optional)
-        if: ${{ github.event.inputs.webview_url != '' }}
+      - name: Prepare Android platform
+        shell: bash
         run: |
-          echo "APP_NAME=${{ github.event.inputs.app_name }}" >> $GITHUB_ENV
-          echo "WEBVIEW_URL=${{ github.event.inputs.webview_url }}" >> $GITHUB_ENV
-          # Sesuaikan path project Flutter kamu bila perlu:
-          # sed -i "s|https://example.com|${{ github.event.inputs.webview_url }}|g" lib/main.dart || true
+          set -euo pipefail
 
-      - name: Build debug
-        if: ${{ (github.event.inputs.mode || 'debug') != 'release' }}
-        run: flutter build apk --debug --dart-define=WEBVIEW_URL=${{ github.event.inputs.webview_url || '' }} --dart-define=APP_NAME=${{ github.event.inputs.app_name || '' }}
+          if [ ! -f pubspec.yaml ]; then
+            echo 'pubspec.yaml tidak ditemukan. Pastikan isi folder github-deploy diunggah ke root repository.' >&2
+            exit 1
+          fi
 
-      - name: Build release
-        if: ${{ (github.event.inputs.mode || 'debug') == 'release' }}
-        run: flutter build apk --release --dart-define=WEBVIEW_URL=${{ github.event.inputs.webview_url || '' }} --dart-define=APP_NAME=${{ github.event.inputs.app_name || '' }}
+          if [ ! -d android ]; then
+            flutter create \
+              --no-pub \
+              --platforms=android \
+              --project-name webview_app \
+              --org com.webviewapp \
+              .
+          fi
 
-      - name: Upload artifact
+          manifest='android/app/src/main/AndroidManifest.xml'
+          if [ -f "$manifest" ] && ! grep -q 'android.permission.INTERNET' "$manifest"; then
+            sed -i '/<manifest[[:space:]]/a\    <uses-permission android:name="android.permission.INTERNET" />' "$manifest"
+          fi
+
+          flutter pub get
+
+      - name: Validate Flutter project
+        run: flutter analyze --no-fatal-infos
+
+      - name: Build APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter build apk \
+            --${BUILD_MODE} \
+            --dart-define="WEBVIEW_URL=${WEBVIEW_URL}" \
+            --dart-define="APP_NAME=${APP_NAME}"
+
+      - name: Show APK outputs
+        if: always()
+        run: find build -type f -name '*.apk' -print || true
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-${{ github.event.inputs.mode || 'debug' }}-${{ github.run_number }}
-          path: |
-            build/app/outputs/flutter-apk/*.apk
-            build/app/outputs/apk/**/*.apk
+          name: app-${{ inputs.mode || 'debug' }}-${{ github.run_number }}
+          path: build/app/outputs/flutter-apk/*.apk
           if-no-files-found: error
           retention-days: 7
-          
